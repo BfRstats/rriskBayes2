@@ -2,7 +2,7 @@
 
 ################################################################################
 ################################################################################
-#' @description test Bayesian PEM models provide the posterior distribution for the true prevalence (\code{pi}),
+#' @description Bayesian PEM models provide the posterior distribution for the true prevalence (\code{pi}),
 #' diagnostic sensitivity (\code{se}) and specificity (\code{sp}) for a given empirical prevalence
 #' estimate using physically pooled samples (if \code{k>1}) and priors for the model parameters.
 #' The misclassification parameters (\code{se} and \code{sp}) can be specified
@@ -29,10 +29,10 @@
 #'        x ~ dbin(p,n)
 #'
 #'      }}
-#' for misclassifications at the individual level (\code{k>1} and \code{misclass="individual"})
+#' for misclassifications at the individual level (\code{k=1} and \code{misclass="individual"})
 #' \preformatted{model{
 #'
-#'        pi ~ dbeta(prior.pi[1],prior.pi[2])
+#'        pi ~ dbeta(1, 1)
 #'
 #'        se ~ dbeta(prior.se[1],prior.se[2])
 #'
@@ -40,11 +40,25 @@
 #'
 #'        ap <- pi*se + (1-pi)*(1-sp)
 #'
-#'        p <- 1- pow(1-ap,k)
+#'        x ~ dbin(p,n)
+#'
+#'      }}
+#'
+#' for misclassifications at the individual level with fixed sensitivit resp. specifity (\code{k=1} and \code{misclass="individual"})
+#' \preformatted{model{
+#'
+#'        pi ~ dbeta(prior.pi[1],prior.pi[2])
+#'
+#'        se ~ fix
+#'
+#'        sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'
+#'        ap <- pi*se + (1-pi)*(1-sp)
 #'
 #'        x ~ dbin(p,n)
 #'
 #'      }}
+
 #' and for comparison (\code{k>1})
 #' \preformatted{model{
 #'
@@ -73,6 +87,8 @@
 #'        x2 ~ dbin(p,n)
 #'
 #'      }}
+#'
+#'
 #' The application data (\code{k=1}) has one degree of freedom while the underlying model
 #' has three unknown parameters. Thus, the model is not identifiable and informative
 #' priors on at least two model parameters are required. The Bayesian model for estimation
@@ -104,9 +120,9 @@
 #' @param simulation logical, value \code{TRUE} means the function will be called within any simulation routine,
 #' in this case the graphical diagnostic interface will not be invoked (default \code{FALSE})
 #' @param prior.pi numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g. \code{pi} \eqn{\sim} \code{prior.pi(*,*)=beta(*,*)}
-#' @param prior.se numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} \eqn{\sim} \code{prior.se(*,*)=beta(*,*)}
-#' @param prior.sp numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} \eqn{\sim} \code{prior.sp(*,*)=beta(*,*)}
-#' @param misclass character with legal character entries \code{pool}, \code{individual} or \code{compare}; ignored if k=1
+#' @param prior.se numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} \eqn{\sim} \code{prior.se(*,*)=beta(*,*)}. For fixed sensitivity scalar value.
+#' @param prior.sp numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} \eqn{\sim} \code{prior.sp(*,*)=beta(*,*)}. For fixed specifity scalara value.
+#' @param misclass character with legal character entries \code{pool}, \code{individual} or \code{individual-fix-se} or \code{individual-fix-sp}; ignored if k=1
 #' @param chains positive single numeric value, number of independent MCMC chains (default 3)
 #' @param burn positive single numeric value, length of the burn-in period (default 1000)
 #' @param update positive single numeric value, length of update iterations for estimation (default 10000)
@@ -152,7 +168,7 @@ rrisk.BayesPEM <- function(x,
 )
 {
 
-  checkInput(x,n,k, prior.pi, prior.se, prior.sp, chains, burn, update, misclass, workdir, plots)
+  checkInput(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, update, misclass, workdir, plots)
 
 
   #-----------------------------------------------------------------------------
@@ -166,23 +182,9 @@ rrisk.BayesPEM <- function(x,
   out<-new("bayesmodelClass")
 
   #-----------------------------------------------------------------------------
-  # create nodes (parameters to be estimated) for the model and table for parameters of prior distribution for each node
-  #-----------------------------------------------------------------------------
-
-  # nodes <- c("pi","se","sp")
-  # nodes.prior <- matrix(1,nrow=3, ncol=2)
-  # colnames(nodes.prior) <- c("Parameter1","Parameter2")
-  # rownames(nodes.prior) <- nodes
-  # nodes.prior["pi",] <- prior.pi
-  # nodes.prior["se",] <- prior.se
-  # nodes.prior["sp",] <- prior.sp
-
-
-  #-----------------------------------------------------------------------------
   # write model
   #-----------------------------------------------------------------------------
-  if(k==1){
-  } else if (k>1){
+
     if(misclass == "individual") {
       model_string <- function(pi_prior = c(1, 1), se_prior, sp_prior) {
         sprintf("model {
@@ -196,6 +198,8 @@ rrisk.BayesPEM <- function(x,
                   #monitor# pi, se, sp
         }", pi_prior[1], pi_prior[2], se_prior[1], se_prior[2], sp_prior[1], sp_prior[2])
       }
+      jags_data <- list(n = n, x = x)
+
     }else if(misclass == "individual-fix-sp") {
       model_string <- function(pi_prior, se_prior, sp_fix) {
         sprintf("model {
@@ -209,6 +213,8 @@ rrisk.BayesPEM <- function(x,
                   #monitor# pi, se
         }", pi_prior[1], pi_prior[2], se_prior[1], se_prior[2], sp_fix)
       }
+      jags_data <- list(n = n, x = x)
+
     }else if(misclass == "individual-fix-se") {
       model_string <- function(pi_prior, se_fix, sp_prior) {
         sprintf("model {
@@ -221,6 +227,8 @@ rrisk.BayesPEM <- function(x,
                 #inits# pi, se
                 #monitor# pi, se
       }", pi_prior[1], pi_prior[2], se_fix, sp_prior[1], sp_prior[2])
+
+        jags_data <- list(n = n, x = x)
       }
     } else if(misclass == "pool"){
       model_string <- function(pi_prior, seP_prior, spP_prior) {
@@ -237,21 +245,30 @@ rrisk.BayesPEM <- function(x,
                 #monitor# pi, seP, spP
       }", pi_prior[1], pi_prior[2], seP_prior[1], seP_prior[2], spP_prior[1], spP_prior[2])
       }
+      jags_data <- list(n = n, x = x, k = k)
     }
-  }
 
 
+  inits <- inits_function(chains, misclass)
 
+  jags_res <- autorun.jags(
+    model    = model_string(pi_prior, se_prior, sp_prior),
+    data     = jags_data,
+    inits    = jags_inits_function,
+    max.time = "3m",
+    n.chains = chains,
+    method   = "rjags",
+    plots    = FALSE
+  )
 
-
-
-
+  out@results <- jags_res
+  plotDiag(jags_res)
 
 #-----------------------------------------------------------------------------
 # output
 #-----------------------------------------------------------------------------
 #write.table(out$model,file="doc.txt",quote=FALSE,row.names=FALSE,col.names=FALSE)
-return(out)
+return(jags_res)
 } # end of function
 
 

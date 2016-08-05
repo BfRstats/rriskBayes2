@@ -42,8 +42,6 @@ setClass(Class="bayesmodelClass",
            update=NULL))
 
 
-
-
 ################################################################################
 #' @description Show method for \code{\linkS4class{bayesmodelClass}}
 #'

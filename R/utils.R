@@ -11,7 +11,6 @@ checkInput <- function(x,
                        workdir,
                        plots
 ) {
-
   try.setwd<-try(setwd(workdir),silent=TRUE)
   if(inherits(try.setwd, "try-error"))
   { on.exit(return(invisible(NA)))
@@ -99,16 +98,11 @@ checkInput <- function(x,
 
 
 
-
-
-
-
-
-jags_inits_function <- function(chain, misclass) {  # max number of chains: 5
+inits_function <- function(chain, misclass) {  # max number of chains: 5
 
   pi <- c(0.2, 0.5, 0.8, 0.9, 0.7)[chain]
   se <- c(0.9, 0.8, 0.7, 0.6, 0.75)[chain]
-  spP <- c(0.7, 0.9, 0.8, 0.85, 0.95)[chain]
+  sp <- c(0.7, 0.9, 0.8, 0.85, 0.95)[chain]
 
   .RNG.seed <- c(1, 2, 3, 4, 5)[chain]
   .RNG.name <- c("lecuyer::RngStream",
@@ -117,15 +111,20 @@ jags_inits_function <- function(chain, misclass) {  # max number of chains: 5
                  "base::Mersenne-Twister",
                  "base::Marsaglia-Multicarry")[chain]
 
-  if(misclass == "individual-fix-sp"){
+  if(misclass == "individual-fix-se"){
     inits.list <- list(.RNG.seed = .RNG.seed,
                        .RNG.name = .RNG.name,
                        pi = pi, se = se)
+  }
+    if(misclass == "individual-fix-sp"){
+      inits.list <- list(.RNG.seed = .RNG.seed,
+                         .RNG.name = .RNG.name,
+                         pi = pi, sp = sp)
 
-  }else if(misclass == "pool"){
+  }else if(misclass == "pool" | misclass == "individual"){
     inits.list <- list(.RNG.seed = .RNG.seed,
                        .RNG.name = .RNG.name,
-                       pi = pi, seP = seP, spP = spP)
+                       pi = pi, se = se, sp = sp)
   }
 
   return(inits.list)
