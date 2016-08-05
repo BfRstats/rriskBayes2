@@ -34,7 +34,7 @@ plotDiag <- function(x, plot.type="all"){
 
          #Density - Old: plotDensity
          "density" = {
-           mcmcobj <- as.mcmc(x)
+           mcmcobj <- suppressWarnings(as.mcmc(x))
            par(mfrow=c(1,3))
            densplot(mcmcobj)
            par(mfrow=c(1,1))
@@ -46,7 +46,7 @@ plotDiag <- function(x, plot.type="all"){
            plot(x, plot.type= "trace")
            plot(x, plot.type = "autocorr")
            plot(x, plot.type = "histogram")
-           mcmcobj <- as.mcmc(x)
+           mcmcobj <- suppressWarnings(as.mcmc(x))
            par(mfrow=c(1,3))
            densplot(mcmcobj)
            par(mfrow=c(1,1))
