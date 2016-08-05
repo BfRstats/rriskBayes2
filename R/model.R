@@ -254,21 +254,30 @@ rrisk.BayesPEM <- function(x,
   jags_res <- autorun.jags(
     model    = model_string(pi_prior, se_prior, sp_prior),
     data     = jags_data,
-    inits    = jags_inits_function,
+    inits    = inits,
     max.time = "3m",
     n.chains = chains,
     method   = "rjags",
     plots    = FALSE
   )
 
-  out@results <- jags_res
   plotDiag(jags_res)
+
+  #out@nodes <- jags_res@monitor
+  out@model <- model_string
+  out@chains <- chains
+  out@burn <- burn
+  out@update <- update
+  out@jointpost <- (sample(jags_res))$mcmc
+  out@results <- jags_res
+
+
 
 #-----------------------------------------------------------------------------
 # output
 #-----------------------------------------------------------------------------
 #write.table(out$model,file="doc.txt",quote=FALSE,row.names=FALSE,col.names=FALSE)
-return(jags_res)
+return(out)
 } # end of function
 
 
