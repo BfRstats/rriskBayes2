@@ -262,8 +262,7 @@ rrisk.BayesPEM <- function(x,
   )
 
   plotDiag(jags_res)
-
-  #out@nodes <- jags_res@monitor
+  out@nodes <- jags_res$monitor
   out@model <- model_string
   out@chains <- chains
   out@burn <- burn
