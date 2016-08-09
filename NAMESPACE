@@ -3,4 +3,5 @@
 export(plotDiag)
 export(rrisk.BayesPEM)
 exportClasses(bayesmodelClass)
-
+exportMethods(show)
+importFrom(methods,show)

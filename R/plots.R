@@ -42,14 +42,14 @@ plotDiag <- function(x, plot.type="all"){
 
          "all" =
          {
-           gelman.plot(x)
-           plot(x, plot.type= "trace")
-           plot(x, plot.type = "autocorr")
-           plot(x, plot.type = "histogram")
+           par(mfrow = c(2,3))
+           gelman.plot(x, auto.layout = FALSE)
            mcmcobj <- suppressWarnings(as.mcmc(x))
-           par(mfrow=c(1,3))
            densplot(mcmcobj)
            par(mfrow=c(1,1))
+           plot(x, plot.type= "trace")
+           plot(x, plot.type = "autocorr")
+          # plot(x, plot.type = "histogram")
          }
 
   )

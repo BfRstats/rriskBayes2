@@ -58,7 +58,8 @@ setClass(Class="bayesmodelClass",
 setMethod(f="show",
           signature=signature(object="bayesmodelClass"),
           definition=function(object)
-          { cat("\n")
+          { 
+            cat("\n")
             if(is.null(object@convergence))
             { cat("convergence: \n NULL\n\n")
             } else cat("convergence: \n",object@convergence, "\n\n")

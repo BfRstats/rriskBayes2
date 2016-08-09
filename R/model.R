@@ -1,5 +1,4 @@
 
-
 ################################################################################
 ################################################################################
 #' @description Bayesian PEM models provide the posterior distribution for the true prevalence (\code{pi}),
@@ -16,49 +15,60 @@
 #' (\code{k>1} and \code{misclass="pool"})
 #' \preformatted{model{
 #'
-#'        pi ~ dbeta(prior.pi[1],prior.pi[2])
+#'       pi ~ dbeta(prior.pi[1],prior.pi[2])
 #'
-#'        se ~ dbeta(prior.se[1],prior.se[2])
+#'       se ~ dbeta(prior.se[1],prior.se[2])
 #'
-#'        sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'       sp ~ dbeta(prior.sp[1],prior.sp[2])
 #'
-#'        p.neg <- pow(1-pi,k)
+#'       p.neg <- pow(1-pi,k)
 #'
-#'        p <- (1-p.neg)*se + p.neg*(1-sp)
+#'       p <- (1-p.neg)*se + p.neg*(1-sp)
 #'
-#'        x ~ dbin(p,n)
-#'
+#'       x ~ dbin(p,n)
 #'      }}
+#' The application data (\code{k=1}) has one degree of freedom while the underlying model
+#' has three unknown parameters. Thus, the model is not identifiable and informative
+#' priors on at least two model parameters are required. The Bayesian model for estimation
+#' prevalence, sensitivity and specificity takes a form
+#' \preformatted{model{
+#'
+#'       pi  ~ dbeta(prior.pi[1],prior.pi[2])
+#'
+#'       se ~ dbeta(prior.se[1],prior.se[2])
+#'
+#'       sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'
+#'       p <- pi * se + (1-pi) * (1-sp)
+#'       
+#'       x ~ dbin(p,n)
+#'
+#'    }}
 #' for misclassifications at the individual level (\code{k=1} and \code{misclass="individual"})
 #' \preformatted{model{
+#' 
+#'       pi ~ dbeta( 1, 1)
 #'
-#'        pi ~ dbeta(1, 1)
+#'       se ~ dbeta(prior.se[1],prior.se[2])
 #'
-#'        se ~ dbeta(prior.se[1],prior.se[2])
+#'       sp ~ dbeta(prior.sp[1],prior.sp[2])
 #'
-#'        sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'       ap <- pi*se + (1-pi)*(1-sp)
 #'
-#'        ap <- pi*se + (1-pi)*(1-sp)
-#'
-#'        x ~ dbin(p,n)
-#'
-#'      }}
-#'
-#' for misclassifications at the individual level with fixed sensitivit resp. specifity (\code{k=1} and \code{misclass="individual"})
+#'       x ~ dbin(ap,n)
+#'    }}
+#' for misclassifications at the individual level with fixed sensitivity resp. specifity (\code{k=1} and \code{misclass="individual-fix-sp"})
 #' \preformatted{model{
-#'
 #'        pi ~ dbeta(prior.pi[1],prior.pi[2])
 #'
-#'        se ~ fix
+#'        se ~ dbeta(prior.sp[1],prior.sp[2])
 #'
-#'        sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'        sp ~ fix
 #'
 #'        ap <- pi*se + (1-pi)*(1-sp)
 #'
 #'        x ~ dbin(p,n)
-#'
-#'      }}
-
+#'    }}
 #' and for comparison (\code{k>1})
 #' \preformatted{model{
 #'
@@ -87,31 +97,11 @@
 #'        x2 ~ dbin(p,n)
 #'
 #'      }}
-#'
-#'
-#' The application data (\code{k=1}) has one degree of freedom while the underlying model
-#' has three unknown parameters. Thus, the model is not identifiable and informative
-#' priors on at least two model parameters are required. The Bayesian model for estimation
-#' prevalence, sensitivity and specificity takes a form
-#' \preformatted{model{
-#'
-#'      x ~ dbin(p,n)
-#'
-#'      p <- pi * se + (1-pi) * (1-sp)
-#'
-#'      se ~ dbeta(prior.se[1],prior.se[2])
-#'
-#'      sp ~ dbeta(prior.sp[1],prior.sp[2])
-#'
-#'      pi  ~ dbeta(prior.pi[1],prior.pi[2])
-#'
-#'    }}
-#'
 #' @name rrisk.BayesPEM
 #' @aliases rrisk.BayesPEM
 #' @title Bayesian Prevalence estimation under misclassification (PEM)
 #' @usage rrisk.BayesPEM(x, n, k, simulation=FALSE, prior.pi, prior.se, prior.sp,
-#'  misclass="pool",chains=3, burn=1000, update=10000,
+#'  misclass="pool",chains=3, burn=1000, thin=1, update=10000,
 #'  workdir=getwd(), plots=FALSE)
 #' @param x scalar value for number of pools (\code{k>1}) or individual outcomes (\code{k=1}) with positive test result
 #' @param n scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k=1})
@@ -122,9 +112,10 @@
 #' @param prior.pi numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g. \code{pi} \eqn{\sim} \code{prior.pi(*,*)=beta(*,*)}
 #' @param prior.se numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} \eqn{\sim} \code{prior.se(*,*)=beta(*,*)}. For fixed sensitivity scalar value.
 #' @param prior.sp numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} \eqn{\sim} \code{prior.sp(*,*)=beta(*,*)}. For fixed specifity scalara value.
-#' @param misclass character with legal character entries \code{pool}, \code{individual} or \code{individual-fix-se} or \code{individual-fix-sp}; ignored if k=1
+#' @param misclass character with legal character entries \code{pool}, \code{individual} or \code{individual-fix-se} or \code{individual-fix-sp}.
 #' @param chains positive single numeric value, number of independent MCMC chains (default 3)
 #' @param burn positive single numeric value, length of the burn-in period (default 1000)
+#' @param thin positive single numeric value (default 1). The samples from every kth iteration will be used for inference, where k is the value of thin. Setting thin > 1 can help to reduce the autocorrelation in the sample.
 #' @param update positive single numeric value, length of update iterations for estimation (default 10000)
 #' @param workdir character string giving working directory to store temporary data (default \code{getwd()})
 #' @param plots logical, if \code{TRUE} the diagnostic plots will be displayed in separate windows
@@ -137,6 +128,7 @@
 #' \item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
 #' \item{\code{chains}}{number of independent MCMC chains}
 #' \item{\code{burn}}{length of burn-in period}
+#' \item{\code{thin}}{the thinning interval to be used}
 #' \item{\code{update}}{length of update iterations for estimation}
 #' @note The convergence of the model is assessed by the user using diagnostic plots
 #' provided by the \pkg{BRugs} package.
@@ -162,13 +154,14 @@ rrisk.BayesPEM <- function(x,
                            misclass = "pool",
                            chains = 3,
                            burn = 1000,
+                           thin = 1,
                            update = 10000,
                            workdir = getwd(),
                            plots = FALSE
 )
 {
 
-  checkInput(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, update, misclass, workdir, plots)
+  checkInput(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, thin, update, misclass, workdir, plots)
 
 
   #-----------------------------------------------------------------------------
@@ -214,22 +207,22 @@ rrisk.BayesPEM <- function(x,
         }", pi_prior[1], pi_prior[2], se_prior[1], se_prior[2], sp_fix)
       }
       jags_data <- list(n = n, x = x)
-
+      
     }else if(misclass == "individual-fix-se") {
       model_string <- function(pi_prior, se_fix, sp_prior) {
         sprintf("model {
                 pi ~  dbeta(%g, %g)                   # prevalence
-                se ~  %g                              # sensitivity
-                sp <- dbeta(%g, %g)                   # fixed specificity
+                se <-  %g                             # fixed sensitivity
+                sp ~  dbeta(%g, %g)                   # specificity
                 ap <- pi*se + (1-pi)*(1-sp)           # apparent prevalence
                 x  ~  dbin(ap, n)                     # number of positive samples
 
-                #inits# pi, se
-                #monitor# pi, se
-      }", pi_prior[1], pi_prior[2], se_fix, sp_prior[1], sp_prior[2])
-
-        jags_data <- list(n = n, x = x)
+                #inits# pi, sp
+                #monitor# pi, sp
+        }", pi_prior[1], pi_prior[2], se_fix, sp_prior[1], sp_prior[2])
       }
+      jags_data <- list(n = n, x = x)
+      
     } else if(misclass == "pool"){
       model_string <- function(pi_prior, seP_prior, spP_prior) {
         sprintf("model {
@@ -249,33 +242,35 @@ rrisk.BayesPEM <- function(x,
     }
 
 
-  inits <- inits_function(chains, misclass)
+  #wrapper function for inits_function with only one argument chain as required by autorun.jags
+  inits <- function(chain) inits_function(chain, misclass)
+  model <- model_string(pi_prior, se_prior, sp_prior)
 
   jags_res <- autorun.jags(
-    model    = model_string(pi_prior, se_prior, sp_prior),
+    model    = model,
     data     = jags_data,
-    inits    = inits,
-    max.time = "3m",
     n.chains = chains,
+    inits    = inits,
+    startburnin = burn,
+    startsample = update,
+    max.time = "3m",
     method   = "rjags",
+    thin     = thin,
     plots    = FALSE
   )
 
-  plotDiag(jags_res)
+  
+  if(plots)
+    plotDiag(jags_res)
+  
   out@nodes <- jags_res$monitor
-  out@model <- model_string
+  out@model <- writeModel(misclass)
   out@chains <- chains
   out@burn <- burn
   out@update <- update
-  out@jointpost <- (sample(jags_res))$mcmc
+  out@jointpost <- (sample(jags_res))$mcmc[[1]]
   out@results <- jags_res
 
-
-
-#-----------------------------------------------------------------------------
-# output
-#-----------------------------------------------------------------------------
-#write.table(out$model,file="doc.txt",quote=FALSE,row.names=FALSE,col.names=FALSE)
 return(out)
 } # end of function
 
