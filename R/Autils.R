@@ -1,4 +1,6 @@
-checkInput <- function(x,
+################################################################################
+################################################################################
+checkInputPEM <- function(x,
                        n,
                        k,
                        prior.pi,
@@ -101,10 +103,206 @@ checkInput <- function(x,
 
 }
 
+
+#-----------------------------------------------------------------------------
+# checking input
+#-----------------------------------------------------------------------------
+checkInputZIP <- function(data,
+                          prior.lambda,
+                          prior.pi,
+                          simulation,
+                          chains,
+                          burn,
+                          thin,
+                          update,
+                          workdir,
+                          plots){
+  if (missing(data))
+  { on.exit(return(invisible(NA)))
+    stop("INVALID INPUT, missing one or more of the function arguments: 'data', 'prior.lambda', 'prior.pi'!", call. = FALSE)
+  }
+  
+  if (!is.numeric(data) |!is.numeric(prior.lambda) | !is.numeric(prior.pi) | !is.numeric(chains) | !is.numeric(burn) | !is.numeric(update))
+  { on.exit(return(invisible(NA)))
+    stop("INVALID INPUT, one or more of the following arguments is not numeric: 'data', 'prior.lambda', 'prior.pi', 'chains', 'burn', 'update'!",
+         call. = FALSE)
+  }
+  
+  if (!is.logical(plots))
+  { on.exit(return(invisible(NA)))
+    stop("INVALID INPUT, the argument 'plots' should be of type logical!", call. = FALSE)
+  }
+  
+  if (chains <= 0 | burn <= 0 | update <= 0 | thin < 1)
+  { on.exit(return(invisible(NA)))
+    stop("INVALID INPUT, one or more of the following arguments is not positive: 'chains', 'burn', 'update', 'thin'!", call. = FALSE)
+  }
+  
+  if (length(prior.lambda) != 2 | length(prior.pi) != 2)
+  { on.exit(return(invisible(NA)))
+    stop("INVALID INPUT, the arguments 'prior.lambda' and 'prior.pi' should be of length 2!", call. = FALSE)
+  }
+  
+  try.setwd <- try(setwd(workdir), silent = TRUE)
+  if (inherits(try.setwd, "try-error"))
+  { on.exit(return(invisible(NA)))
+    error.mess <- paste("INVALID INPUT, the working directory could not be found! Your input is \n", workdir)
+    stop(error.mess, call. = FALSE)
+  }
+  
+  #-----------------------------------------------------------------------------
+  # plausibility check on data
+  #-----------------------------------------------------------------------------
+  if (length(data) < 10)
+  { on.exit(return(invisible(NA)))
+    stop("Data set too small for this purpose!", call. = FALSE)
+  }
+  
+  if (min(data) < 0)
+  { on.exit(return(invisible(NA)))
+    stop("Negative counts in data set are not allowed!", call. = FALSE)
+  }
+  
+  if (any(abs(round(data) - data) != 0))
+  { on.exit(return(invisible(NA)))
+    stop("Data set contains non-integer values!", call. = FALSE)
+  }
+  
+  #-----------------------------------------------------------------------------
+  # plausibility check on priors
+  #-----------------------------------------------------------------------------
+  if (min(prior.pi) <= 0)
+  { on.exit(return(invisible(NA)))
+    stop("Parameters of the beta prior distribution for prevalence should not be negative!", call. = FALSE)
+  }
+  
+  if (min(prior.lambda) < 0)
+  { on.exit(return(invisible(NA)))
+    stop("Parameters of the uniform prior distribution used as prior for the Poisson parameter should be strictly positive!", call. = FALSE)
+  }
+}
+
+
+################################################################################
+################################################################################
+modelFunctionPEM <- function(misclass) {
+  if (misclass == "individual") {
+    model_string <- function(pi_prior = c(1, 1), se_prior, sp_prior) {
+      sprintf(
+        "model {
+        pi ~  dbeta(%g, %g)                 # prevalence
+        se ~  dbeta(%g, %g)                 # sensitivity
+        sp ~  dbeta(%g, %g)                 # specificity
+        ap <- pi*se + (1-pi)*(1-sp)         # apparent prevalence
+        x  ~  dbin(ap, n)                   # number of positive samples
+        
+        #inits# pi, se, sp
+        #monitor# pi, se, sp
+    }",
+        pi_prior[1],
+        pi_prior[2],
+        se_prior[1],
+        se_prior[2],
+        sp_prior[1],
+        sp_prior[2]
+      )
+  }
+} else if (misclass == "individual-fix-sp") {
+  model_string <- function(pi_prior, se_prior, sp_fix) {
+    sprintf(
+      "model {
+      pi ~  dbeta(%g, %g)                 # prevalence
+      se ~  dbeta(%g, %g)                 # sensitivity
+      sp <- %g                            # fixed specificity
+      ap <- pi*se + (1-pi)*(1-sp)         # apparent prevalence
+      x  ~  dbin(ap, n)                   # number of positive samples
+      
+      #inits# pi, se
+      #monitor# pi, se
+  }",
+      pi_prior[1],
+      pi_prior[2],
+      se_prior[1],
+      se_prior[2],
+      sp_fix
+    )
+  }
+} else if (misclass == "individual-fix-se") {
+    model_string <- function(pi_prior, se_fix, sp_prior) {
+      sprintf(
+        "model {
+        pi ~  dbeta(%g, %g)                   # prevalence
+        se <-  %g                             # fixed sensitivity
+        sp ~  dbeta(%g, %g)                   # specificity
+        ap <- pi*se + (1-pi)*(1-sp)           # apparent prevalence
+        x  ~  dbin(ap, n)                     # number of positive samples
+        
+        #inits# pi, sp
+        #monitor# pi, sp
+    }",
+        pi_prior[1],
+        pi_prior[2],
+        se_fix,
+        sp_prior[1],
+        sp_prior[2]
+      )
+  }
+} else if (misclass == "pool") {
+      model_string <- function(pi_prior, seP_prior, spP_prior) {
+        sprintf(
+          "model {
+          pi  ~  dbeta(%g, %g)                 # prevalence
+          seP ~  dbeta(%g, %g)                 # (pooled test) sensitivity
+          spP ~  dbeta(%g, %g)                 # (pooled test) specificity
+          p.neg <- pow(1-pi, k)                # probability of a disease-free pool
+          p  <- (1-p.neg)*seP + p.neg*(1-spP)  # probability for a pool
+          # to test positive
+          x   ~  dbin(p, n)                    # number of positive pools
+          
+          #inits# pi, seP, spP
+          #monitor# pi, seP, spP
+      }",
+          pi_prior[1],
+          pi_prior[2],
+          seP_prior[1],
+          seP_prior[2],
+          spP_prior[1],
+          spP_prior[2]
+        )
+    }
+      }
+      return(model_string)
+  }
+
+################################################################################
+################################################################################
+modelFunctionZIP <- function(lambda_prior, pi_prior) {
+  sprintf(
+    "model{
+
+    lambda  ~  dunif(%g, %g)
+    pi  ~  dbeta(%g, %g)
+    
+    for (i in 1:n) {
+      y[i]  ~ dpois(mu[i])
+      mu[i] <- I[i] * lambda
+      I[i] ~ dbern(pi)
+    }
+    
+    #inits# lambda, pi
+    #monitor# lambda, pi
+}", 
+    lambda_prior[1],
+    lambda_prior[2],
+    pi_prior[1],
+    pi_prior[2]
+  )
+  }
+
 ################################################################################
 ################################################################################
 
-inits_function <-
+inits_functionPEM <-
   function(chain, misclass) {
     # max number of chains: 5
     
@@ -153,12 +351,42 @@ inits_function <-
 ################################################################################
 ################################################################################
 
+
+inits_functionZIP <-  function(chain) {
+    # max number of chains: 5
+    
+    pi <- c(0.2, 0.5, 0.8, 0.9, 0.7)[chain]
+    lambda <- c(0.9, 0.8, 0.7, 0.6, 0.75)[chain]
+   
+    .RNG.seed <- c(1, 2, 3, 4, 5)[chain]
+    .RNG.name <- c(
+      "lecuyer::RngStream",
+      "base::Super-Duper",
+      "base::Wichmann-Hill",
+      "base::Mersenne-Twister",
+      "base::Marsaglia-Multicarry"
+    )[chain]
+    
+    inits.list <- list(
+      .RNG.seed = .RNG.seed,
+      .RNG.name = .RNG.name,
+      pi = pi,
+      lambda = lambda
+    )
+
+    return(inits.list)
+  }
+
+
+################################################################################
+################################################################################
+
 #-----------------------------------------------------------------------------
 # write model
 #-----------------------------------------------------------------------------
-writeModel <- function(misclass) {
+writeModelPEM <- function(misclass) {
   if (misclass == "individual") {
-   model <- 
+    model <- 
       "model{
       pi ~ dbeta(1, 1)
       
@@ -171,18 +399,18 @@ writeModel <- function(misclass) {
       x ~ dbin(ap,n)
   }"
     
-} else if (misclass == "individual-fix-sp") {
-  model <- 
-    "model{
-    pi ~ dbeta(prior.pi[1],prior.pi[2])
+  } else if (misclass == "individual-fix-sp") {
+    model <- 
+      "model{
+      pi ~ dbeta(prior.pi[1],prior.pi[2])
     
-    se ~ dbeta(prior.sp[1],prior.sp[2])
+      se ~ dbeta(prior.sp[1],prior.sp[2])
+      
+      sp ~ fix
     
-    sp ~ fix
+      ap <- pi*se + (1-pi)*(1-sp)
     
-    ap <- pi*se + (1-pi)*(1-sp)
-    
-    x ~ dbin(p,n)
+      x ~ dbin(p,n)
 }"
     
   } else if (misclass == "individual-fix-se") {
@@ -199,9 +427,9 @@ writeModel <- function(misclass) {
       x ~ dbin(p,n)
 }"
     
-    } else if (misclass == "compare") {
-      model <-
-        "model{
+  } else if (misclass == "compare") {
+    model <-
+      "model{
         pi1 ~ dbeta(prior.pi[1],prior.pi[2])
         
         pi2 ~ dbeta(prior.pi[1],prior.pi[2])
@@ -226,10 +454,10 @@ writeModel <- function(misclass) {
         
         x2 ~ dbin(p,n)
 }"
-      
-      } else if (misclass == "pool") {
-        model <- 
-          "model{
+    
+  } else if (misclass == "pool") {
+    model <- 
+      "model{
           
           pi ~ dbeta(prior.pi[1],prior.pi[2])
           
@@ -243,10 +471,9 @@ writeModel <- function(misclass) {
           
           x ~ dbin(p,n)
 }"
-        
-      }
-
-  return(model)
-  
+    
   }
+  
+  return(model)
+}
 

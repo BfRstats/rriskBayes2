@@ -160,9 +160,10 @@ rrisk.BayesPEM <- function(x,
                            plots = FALSE
 )
 {
-
-  checkInput(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, thin, update, misclass, workdir, plots)
-
+  # -----------------------------------------------------------------------------
+  # check input arguments
+  # -----------------------------------------------------------------------------
+  checkInputPEM(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, thin, update, misclass, workdir, plots)
 
   #-----------------------------------------------------------------------------
   # create a temporary directory
@@ -175,77 +176,26 @@ rrisk.BayesPEM <- function(x,
   out<-new("bayesmodelClass")
 
   #-----------------------------------------------------------------------------
-  # write model
+  # a priori model definitions
   #-----------------------------------------------------------------------------
-
-    if(misclass == "individual") {
-      model_string <- function(pi_prior = c(1, 1), se_prior, sp_prior) {
-        sprintf("model {
-                  pi ~  dbeta(%g, %g)                 # prevalence
-                  se ~  dbeta(%g, %g)                 # sensitivity
-                  sp ~  dbeta(%g, %g)                 # specificity
-                  ap <- pi*se + (1-pi)*(1-sp)         # apparent prevalence
-                  x  ~  dbin(ap, n)                   # number of positive samples
-
-                  #inits# pi, se, sp
-                  #monitor# pi, se, sp
-        }", pi_prior[1], pi_prior[2], se_prior[1], se_prior[2], sp_prior[1], sp_prior[2])
-      }
-      jags_data <- list(n = n, x = x)
-
-    }else if(misclass == "individual-fix-sp") {
-      model_string <- function(pi_prior, se_prior, sp_fix) {
-        sprintf("model {
-                  pi ~  dbeta(%g, %g)                 # prevalence
-                  se ~  dbeta(%g, %g)                 # sensitivity
-                  sp <- %g                            # fixed specificity
-                  ap <- pi*se + (1-pi)*(1-sp)         # apparent prevalence
-                  x  ~  dbin(ap, n)                   # number of positive samples
-
-                  #inits# pi, se
-                  #monitor# pi, se
-        }", pi_prior[1], pi_prior[2], se_prior[1], se_prior[2], sp_fix)
-      }
-      jags_data <- list(n = n, x = x)
-      
-    }else if(misclass == "individual-fix-se") {
-      model_string <- function(pi_prior, se_fix, sp_prior) {
-        sprintf("model {
-                pi ~  dbeta(%g, %g)                   # prevalence
-                se <-  %g                             # fixed sensitivity
-                sp ~  dbeta(%g, %g)                   # specificity
-                ap <- pi*se + (1-pi)*(1-sp)           # apparent prevalence
-                x  ~  dbin(ap, n)                     # number of positive samples
-
-                #inits# pi, sp
-                #monitor# pi, sp
-        }", pi_prior[1], pi_prior[2], se_fix, sp_prior[1], sp_prior[2])
-      }
-      jags_data <- list(n = n, x = x)
-      
-    } else if(misclass == "pool"){
-      model_string <- function(pi_prior, seP_prior, spP_prior) {
-        sprintf("model {
-                pi  ~  dbeta(%g, %g)                 # prevalence
-                seP ~  dbeta(%g, %g)                 # (pooled test) sensitivity
-                spP ~  dbeta(%g, %g)                 # (pooled test) specificity
-                p.neg <- pow(1-pi, k)                # probability of a disease-free pool
-                p  <- (1-p.neg)*seP + p.neg*(1-spP)  # probability for a pool
-                # to test positive
-                x   ~  dbin(p, n)                    # number of positive pools
-
-                #inits# pi, seP, spP
-                #monitor# pi, seP, spP
-      }", pi_prior[1], pi_prior[2], seP_prior[1], seP_prior[2], spP_prior[1], spP_prior[2])
-      }
-      jags_data <- list(n = n, x = x, k = k)
-    }
-
-
+  #data
+  if (misclass == "pool")
+    jags_data <- list(n = n, x = x, k = k)
+  else
+    jags_data <- list(n = n, x = x, k = k)
+  
   #wrapper function for inits_function with only one argument chain as required by autorun.jags
-  inits <- function(chain) inits_function(chain, misclass)
-  model <- model_string(pi_prior, se_prior, sp_prior)
+  inits <- function(chain) inits_functionPEM(chain, misclass)
+  
+  #define model
+  model_function <- modelFunctionPEM(misclass)
+  model <- model_function(pi_prior, se_prior, sp_prior)
 
+  #-----------------------------------------------------------------------------
+  # run model
+  #-----------------------------------------------------------------------------
+  
+  #run model
   jags_res <- autorun.jags(
     model    = model,
     data     = jags_data,
@@ -259,12 +209,15 @@ rrisk.BayesPEM <- function(x,
     plots    = FALSE
   )
 
-  
   if(plots)
     plotDiag(jags_res)
   
+  #-----------------------------------------------------------------------------
+  # output
+  #-----------------------------------------------------------------------------
+  
   out@nodes <- jags_res$monitor
-  out@model <- writeModel(misclass)
+  out@model <- writeModelPEM(misclass)
   out@chains <- chains
   out@burn <- burn
   out@update <- update
@@ -273,5 +226,165 @@ rrisk.BayesPEM <- function(x,
 
 return(out)
 } # end of function
+
+
+
+
+
+################################################################################
+################################################################################
+#' @description Zero-inflated Poisson data are count data with an excess number of zeros. The
+#' ZIP model involves the Poisson parameter \code{lambda} and the prevalence
+#' parameter \code{pi}.
+#'
+#' @details The ZIP model applies to count data and can be interpreted as a mixture
+#' distribution with one component comprising the 'true' zeros and another component
+#' of Poisson distributed values with density parameter \code{lambda}. The prevalence
+#' parameter \code{pi} refers to the proportion of the second, true non-zero
+#' component.
+#' \cr \cr
+#' The Bayesian model for estimation prevalence and lambda parameter has
+#' in BRugs/Winbugs syntax following form 
+#' \preformatted{model{
+#'
+#'    lambda ~ dunif(prior.lambda[1],prior.lambda[2])
+#'
+#'    pi ~ dbeta(prior.pi[1],prior.pi[2]) 
+#'
+#'    for (i in 1:n) {  
+#'                    
+#'                 y[i]  ~ dpois(mu[i])
+#' 
+#'                 mu[i] <- I[i] * lambda  
+#'
+#'                I[i] ~ dbern(pi)  
+#'        
+#'    }   
+#'                        
+#'  }}
+#'
+#' @name rrisk.BayesZIP
+#' @aliases rrisk.BayesZIP
+#' @title Bayes estimation of a zero inflated Poisson (ZIP) model
+#' @usage rrisk.BayesZIP(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simulation=FALSE,
+#'  chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
+#' @param data matrix, data frame or data set with positive integers, including zeros and of the minimal length 10
+#' @param prior.lambda numeric vector containing minimum and maximum of a uniform
+#' distribution used as prior for the Poisson parameter \code{lambda}, e.g. \cr \code{lambda} \eqn{\sim} \code{prior.lambda(*,*)=unif(*,*)}
+#' @param prior.pi numeric vector containing parameters of a beta distribution
+#' describing prior knowledge about prevalence (proportion of contaminated samples), e.g. \cr \code{pi} \eqn{\sim} \code{prior.pi(*,*)=beta(*,*)}
+#' @param simulation logical, value \code{TRUE} means the function will be called within any simulation routine,
+#' in this case the graphical diagnostic interface will not be invoked (default \code{FALSE})
+#' @param chains positive single numeric value, number of independent MCMC chains (default 3)
+#' @param burn positive single numeric value, length of the burn-in period (default 1000)
+#' @param thin positive single numeric value (default 1). The samples from every kth iteration will be used for 
+#'        inference, where k is the value of thin. Setting \code{thin > 1} can help to reduce the autocorrelation
+#'        in the sample.
+#' @param update positive single numeric value, length of update iterations for estimation (default 10000)
+#' @param workdir character string giving working directory to store temporary data (default \code{getwd()})
+#' @param plots logical, if \code{TRUE} the diagnostic plots will be displayed in separate windows 
+#' @return The function \code{rrisk.BayesZIP} returns an instance of the \code{\linkS4class{bayesmodelClass}}
+#' class containing following informations
+#' \item{\code{convergence}}{logical, whether the model has converged (assessed by the user)}
+#' \item{\code{results}}{data frame containing statitsics of the posterior distribution}
+#' \item{\code{jointpost}}{data frame giving the joint posterior probability distribution}
+#' \item{\code{nodes}}{names of the parameters jointly estimated by the Bayes model}
+#' \item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
+#' \item{\code{chains}}{number of independent MCMC chains}
+#' \item{\code{burn}}{length of burn-in period}
+#' \item{\code{update}}{length of update iterations for estimation}
+#' @note The convergence of the model should be checked using the diagnostic plots
+#' see the package \pkg{BRugs}, see also \pkg{zicounts}.
+# @seealso nothing...
+#' @keywords manip
+#' @export
+#' @references Bohning, D., E. Dietz, P. Schlattman, L. Mendonca, and U. Kirchner (1999). 
+#' The zero-inflated Poisson model and the decayed, missing and filled teeth index in 
+#' dental epidemiology. Journal of the Royal Statistical Society, Series A 162, 195-209.
+#' @examples
+#' \donttest{
+#' #------------------------------------------
+#' # Example of ZIP model
+#' #------------------------------------------
+#' # generate ZIP data
+#' pi<-0.01
+#' n<-200
+#' lambda<-3.5
+#' zip.data<-rep(0,n)
+#' zip.data[sample(1:n,n*pi,replace=FALSE)]<-rpois(n*pi,lambda=lambda)
+#'
+#' # estimate using Bayes model for zero inflated data
+#' resZIP<-rrisk.BayesZIP(data=zip.data, prior.lambda=c(0,100),prior.pi=c(1,1),
+#'  burn=100,update=1000)
+#' resZIP@@results
+#'
+#' # estimate using Bayes model for zero inflated data without invoking
+#' # graphical diagnostic interface
+#' rrisk.BayesZIP(data=zip.data, prior.lambda=c(0,100),prior.pi=c(1,1),
+#'  burn=100,update=1000,simulation=TRUE)
+#'
+#' # compare with naive results ignoring ZIP model
+#' pi.crude <- sum(zip.data>0)/n
+#' lambda.crude <- mean(zip.data)
+#' print(pi.crude)
+#' print(lambda.crude)
+#' resZIP@@results
+#' }
+
+rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simulation=FALSE,
+                           chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
+{
+
+  
+  checkInputZIP(data, prior.lambda, prior.pi, simulation, chains, burn, thin, update, workdir, plots)
+  #-----------------------------------------------------------------------------
+  # create a temporary directory
+  #-----------------------------------------------------------------------------
+  setwd(workdir)
+  out<-new("bayesmodelClass")
+
+   #-----------------------------------------------------------------------------
+  # a priori model definitions
+  #-----------------------------------------------------------------------------
+  #wrapper function for inits_function with only one argument chain as required by autorun.jags
+  inits <- inits_functionZIP
+  
+  #define model
+  model_function <- modelFunctionZIP
+  model <- model_function(prior.lambda, prior.pi)
+  
+  #-----------------------------------------------------------------------------
+  # write data
+  #-----------------------------------------------------------------------------
+  jags_data <- list(y=data, n=length(data))
+
+  #-----------------------------------------------------------------------------
+  # run model
+  #-----------------------------------------------------------------------------
+
+  #run model
+  jags_res <- autorun.jags(
+    model    = model,
+    data     = jags_data,
+    n.chains = chains,
+    inits    = inits,
+    startburnin = burn,
+    startsample = update,
+    max.time = "3m",
+    method   = "rjags",
+    thin     = thin,
+    plots    = FALSE
+  )
+
+  #-----------------------------------------------------------------------------
+  # output
+  #-----------------------------------------------------------------------------
+  #write.table(out$model,file="doc.txt",quote=FALSE,row.names=FALSE,col.names=FALSE)
+  return(out)
+  } # end of function rrisk.BayesZIP()
+
+
+
+
 
 
