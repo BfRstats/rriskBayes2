@@ -10,23 +10,9 @@
 #' (\code{x/n}) of an application study with individual samples (if \code{k=1}) using a diagnostic test, for
 #' which some prior information on sensitivity and specificity is available.
 #'
-#' @details The Bayesian model for estimation prevalence, sensitivity and specificity has
-#' in BRugs/Winbugs syntax following form for misclassification at the pool-level
-#' (\code{k>1} and \code{misclass="pool"})
-#' \preformatted{model{
-#'
-#'       pi ~ dbeta(prior.pi[1],prior.pi[2])
-#'
-#'       se ~ dbeta(prior.se[1],prior.se[2])
-#'
-#'       sp ~ dbeta(prior.sp[1],prior.sp[2])
-#'
-#'       p.neg <- pow(1-pi,k)
-#'
-#'       p <- (1-p.neg)*se + p.neg*(1-sp)
-#'
-#'       x ~ dbin(p,n)
-#'      }}
+#' @details 
+#' The Bayesian model for estimation prevalence, sensitivity and specificity has
+#' in BRugs/Winbugs syntax following form.
 #' The application data (\code{k=1}) has one degree of freedom while the underlying model
 #' has three unknown parameters. Thus, the model is not identifiable and informative
 #' priors on at least two model parameters are required. The Bayesian model for estimation
@@ -39,15 +25,15 @@
 #'
 #'       sp ~ dbeta(prior.sp[1],prior.sp[2])
 #'
-#'       p <- pi * se + (1-pi) * (1-sp)
+#'       ap <- pi * se + (1-pi) * (1-sp)
 #'       
-#'       x ~ dbin(p,n)
+#'       x ~ dbin(ap,n)
 #'
 #'    }}
 #' for misclassifications at the individual level (\code{k=1} and \code{misclass="individual"})
 #' \preformatted{model{
 #' 
-#'       pi ~ dbeta( 1, 1)
+#'       pi ~ dbeta(1, 1)
 #'
 #'       se ~ dbeta(prior.se[1],prior.se[2])
 #'
@@ -69,6 +55,21 @@
 #'
 #'        x ~ dbin(p,n)
 #'    }}
+#' For misclassification at the pool-level (\code{k>1} and \code{misclass="pool"})
+#' \preformatted{model{
+#'
+#'       pi ~ dbeta(prior.pi[1],prior.pi[2])
+#'
+#'       se ~ dbeta(prior.se[1],prior.se[2])
+#'
+#'       sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'
+#'       p.neg <- pow(1-pi,k)
+#'
+#'       p <- (1-p.neg)*se + p.neg*(1-sp)
+#'
+#'       x ~ dbin(p,n)
+#'      }}
 #' and for comparison (\code{k>1})
 #' \preformatted{model{
 #'
@@ -166,12 +167,7 @@ rrisk.BayesPEM <- function(x,
   checkInputPEM(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, thin, update, misclass, workdir, plots)
 
   #-----------------------------------------------------------------------------
-  # create a temporary directory
-  #-----------------------------------------------------------------------------
-  setwd(workdir)
-
-    #-----------------------------------------------------------------------------
-  # replace the out list below with S4 return objects ...
+  # create outlist
   #-----------------------------------------------------------------------------
   out<-new("bayesmodelClass")
 
@@ -215,7 +211,6 @@ rrisk.BayesPEM <- function(x,
   #-----------------------------------------------------------------------------
   # output
   #-----------------------------------------------------------------------------
-  
   out@nodes <- jags_res$monitor
   out@model <- writeModelPEM(misclass)
   out@chains <- chains
@@ -246,22 +241,19 @@ return(out)
 #' The Bayesian model for estimation prevalence and lambda parameter has
 #' in BRugs/Winbugs syntax following form 
 #' \preformatted{model{
+#'    lambda ~ dunif(prior.lambda[1], prior.lambda[2])
 #'
-#'    lambda ~ dunif(prior.lambda[1],prior.lambda[2])
-#'
-#'    pi ~ dbeta(prior.pi[1],prior.pi[2]) 
+#'    pi ~ dbeta(prior.pi[1], prior.pi[2]) 
 #'
 #'    for (i in 1:n) {  
-#'                    
-#'                 y[i]  ~ dpois(mu[i])
+#'                    y[i]  ~ dpois(mu[i])
 #' 
-#'                 mu[i] <- I[i] * lambda  
+#'                    mu[i] <- I[i] * lambda  
 #'
-#'                I[i] ~ dbern(pi)  
-#'        
-#'    }   
-#'                        
-#'  }}
+#'                    I[i] ~ dbern(pi)  
+#'                    }   
+#'  }
+#'}
 #'
 #' @name rrisk.BayesZIP
 #' @aliases rrisk.BayesZIP
@@ -334,14 +326,14 @@ return(out)
 rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simulation=FALSE,
                            chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
 {
-
-  
+  # -----------------------------------------------------------------------------
+  # check input arguments
+  # -----------------------------------------------------------------------------
   checkInputZIP(data, prior.lambda, prior.pi, simulation, chains, burn, thin, update, workdir, plots)
   #-----------------------------------------------------------------------------
-  # create a temporary directory
+  # create outlist
   #-----------------------------------------------------------------------------
-  setwd(workdir)
-  out<-new("bayesmodelClass")
+  out <- new("bayesmodelClass")
 
    #-----------------------------------------------------------------------------
   # a priori model definitions
@@ -351,12 +343,12 @@ rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simula
   
   #define model
   model_function <- modelFunctionZIP
-  model <- model_function(prior.lambda, prior.pi)
+  model <- model_function(lambda_prior = prior.lambda, pi_prior = prior.pi)
   
   #-----------------------------------------------------------------------------
   # write data
   #-----------------------------------------------------------------------------
-  jags_data <- list(y=data, n=length(data))
+  jags_data <- list(y = data, n = length(data))
 
   #-----------------------------------------------------------------------------
   # run model
@@ -379,12 +371,63 @@ rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simula
   #-----------------------------------------------------------------------------
   # output
   #-----------------------------------------------------------------------------
-  #write.table(out$model,file="doc.txt",quote=FALSE,row.names=FALSE,col.names=FALSE)
   return(out)
   } # end of function rrisk.BayesZIP()
 
 
+################################################################################
+################################################################################
 
+rrisk.BayesZINB <- function(data, prior.r=c(1,10), prior.p=c(0, 1), prior.pi=c(0.8, 1), simulation=FALSE,
+                           chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
+{
+  # -----------------------------------------------------------------------------
+  # check input arguments
+  # -----------------------------------------------------------------------------
+  #checkInputZINP
+  #-----------------------------------------------------------------------------
+  # create outlist
+  #-----------------------------------------------------------------------------
+  out <- new("bayesmodelClass")
+  
+  #-----------------------------------------------------------------------------
+  # a priori model definitions
+  #-----------------------------------------------------------------------------
+  #wrapper function for inits_function with only one argument chain as required by autorun.jags
+  inits <- inits_functionZINB
+  
+  #define model
+  model_function <- modelFunctionZINB
+  model <- model_function(r_prior = prior.r, p_prior = prior.p, pi_prior = prior.p)
+  
+  #-----------------------------------------------------------------------------
+  # write data
+  #-----------------------------------------------------------------------------
+  jags_data <- list(y = data, n = length(data))
+  
+  #-----------------------------------------------------------------------------
+  # run model
+  #-----------------------------------------------------------------------------
+  
+  #run model
+  jags_res <- autorun.jags(
+    model    = model,
+    data     = jags_data,
+    n.chains = chains,
+    inits    = inits,
+    startburnin = burn,
+    startsample = update,
+    max.time = "3m",
+    method   = "rjags",
+    thin     = thin,
+    plots    = FALSE
+  )
+  
+  #-----------------------------------------------------------------------------
+  # output
+  #-----------------------------------------------------------------------------
+  return(out)
+} # end of function rrisk.BayesZIP()
 
 
 
