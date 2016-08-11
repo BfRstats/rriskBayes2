@@ -123,6 +123,40 @@ modelFunctionPEM <- function(misclass) {
         spP_prior[2]
       )
     }
+} else if (misclass == "compare"){
+  model_string <- function(pi_prior, se_prior, sp_prior) {
+    sprintf(
+      "model {
+           prior.pi <- c(%g, %g)
+           prior.se <- c(%g, %g)
+           prior.sp <- c(%g, %g)
+
+           pi1 ~ dbeta(prior.pi[1],prior.pi[2])
+           pi2 ~ dbeta(prior.pi[1],prior.pi[2])
+           se ~ dbeta(prior.se[1],prior.se[2])
+           sp ~ dbeta(prior.sp[1],prior.sp[2])
+           x1 <- x
+           x2 <- x
+           p.neg <- pow(1-pi1, k)
+           p.pos <- (1-p.neg)*se + p.neg*(1-sp)
+           x1 ~ dbin(p.pos, n)
+           ap <- pi2*se + (1-pi2)*(1-sp)
+           p <- 1- pow(1-ap,k)
+           x2 ~ dbin(p,n)
+           d <- pi1 - pi2
+
+          #inits# pi, se, sp
+          #monitor# pi1, pi2, se, sp, d
+      }"
+      ,
+      pi_prior[1],
+      pi_prior[2],
+      se_prior[1],
+      se_prior[2],
+      sp_prior[1],
+      sp_prior[2]
+)
+  }
   }
  return(model_string)
 }
@@ -221,8 +255,7 @@ inits_functionPEM <- function(chain, misclass) {
       pi = pi,
       se = se
     )
-  } else if (misclass == "pool" |
-             misclass == "individual") {
+  } else if (misclass == "pool" | misclass == "individual" | misclass == "compare") {
     inits.list <- list(
       .RNG.seed = .RNG.seed,
       .RNG.name = .RNG.name,

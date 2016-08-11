@@ -27,7 +27,6 @@
 #'       ap <- pi * se + (1-pi) * (1-sp)
 #'       
 #'       x ~ dbin(ap,n)
-#'
 #'    }}
 #' for misclassifications at the individual level (\code{k=1} and \code{misclass="individual"})
 #' \preformatted{model{
@@ -46,9 +45,9 @@
 #' \preformatted{model{
 #'        pi ~ dbeta(prior.pi[1],prior.pi[2])
 #'
-#'        se ~ dbeta(prior.sp[1],prior.sp[2])
+#'        se resp. sp ~ dbeta(prior.sp[1],prior.sp[2])
 #'
-#'        sp ~ fix
+#'        sp resp. se ~ fix
 #'
 #'        ap <- pi*se + (1-pi)*(1-sp)
 #'
@@ -72,46 +71,45 @@
 #' and for comparison (\code{k>1})
 #' \preformatted{model{
 #'
-#'        pi1 ~ dbeta(prior.pi[1],prior.pi[2])
+#'       pi1 ~ dbeta(prior.pi[1],prior.pi[2])
 #'
-#'        pi2 ~ dbeta(prior.pi[1],prior.pi[2])
+#'       pi2 ~ dbeta(prior.pi[1],prior.pi[2])
 #'
-#'        se ~ dbeta(prior.se[1],prior.se[2])
+#'       se ~ dbeta(prior.se[1],prior.se[2])
 #'
-#'        sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'       sp ~ dbeta(prior.sp[1],prior.sp[2])
 #'
-#'        x1 <- x
+#'       x1 <- x
 #'
-#'        x2 <- x
+#'       x2 <- x
 #'
-#'        p.neg <- pow(1-pi1,k)
+#'       p.neg <- pow(1-pi1, k)
 #'
-#'        p.pos <- (1-p.neg)*se + p.neg*(1-sp)
+#'       p.pos <- (1-p.neg)*se + p.neg*(1-sp)
 #'
-#'        x1 ~ dbin(p.pos,n)
+#'       x1 ~ dbin(p.pos, n)
 #'
-#'        ap <- pi2*se + (1-pi2)*(1-sp)
+#'       ap <- pi2*se + (1-pi2)*(1-sp)
 #'
-#'        p <- 1- pow(1-ap,k)
+#'       p <- 1- pow(1-ap,k)
 #'
-#'        x2 ~ dbin(p,n)
-#'
+#'       x2 ~ dbin(p,n)
 #'      }}
 #' @name rrisk.BayesPEM
 #' @aliases rrisk.BayesPEM
 #' @title Bayesian Prevalence estimation under misclassification (PEM)
-#' @usage rrisk.BayesPEM(x, n, k, simulation=FALSE, prior.pi, prior.se, prior.sp,
-#'  misclass="pool",chains=3, burn=1000, thin=1, update=10000,
+#' @usage rrisk.BayesPEM(x, n, k, simulation=FALSE, 
+#'  prior.pi, prior.se, prior.sp,
+#'  misclass="pool", chains=3, burn=1000, thin=1, update=10000,
 #'  workdir=getwd(), plots=FALSE)
 #' @param x scalar value for number of pools (\code{k>1}) or individual outcomes (\code{k=1}) with positive test result
 #' @param n scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k=1})
 #' @param k scalar value for number of individual samples physically combined into one pool;
 #' set \code{k>1} for pooled sampling and \code{k=1} for individual sampling
-#' @param simulation logical, value \code{TRUE} means the function will be called within any simulation routine,
-#' in this case the graphical diagnostic interface will not be invoked (default \code{FALSE})
-#' @param prior.pi numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g. \code{pi} \eqn{\sim} \code{prior.pi(*,*)=beta(*,*)}
-#' @param prior.se numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} \eqn{\sim} \code{prior.se(*,*)=beta(*,*)}. For fixed sensitivity scalar value.
-#' @param prior.sp numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} \eqn{\sim} \code{prior.sp(*,*)=beta(*,*)}. For fixed specifity scalara value.
+#' @param simulation not used any longer
+#' @param prior.pi numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g. \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}
+#' @param prior.se numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} ~ \code{prior.se(*,*)=beta(*,*)}. For fixed sensitivity scalar value.
+#' @param prior.sp numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} ~ \code{prior.sp(*,*)=beta(*,*)}. For fixed specifity scalara value.
 #' @param misclass character with legal character entries \code{pool}, \code{individual} or \code{individual-fix-se} or \code{individual-fix-sp}.
 #' @param chains positive single numeric value, number of independent MCMC chains (default 3)
 #' @param burn positive single numeric value, length of the burn-in period (default 1000)
@@ -130,9 +128,6 @@
 #' \item{\code{burn}}{length of burn-in period}
 #' \item{\code{thin}}{the thinning interval to be used}
 #' \item{\code{update}}{length of update iterations for estimation}
-#' @note The convergence of the model is assessed by the user using diagnostic plots
-#' provided by the \pkg{BRugs} package.
-# @seealso nothing...
 #' @keywords manip
 #' @export
 # @references Greiner, M., Belgoroski, N., NN (2011). Estimating prevalence using diagnostic data
@@ -177,7 +172,7 @@ rrisk.BayesPEM <- function(x,
   if (misclass == "pool")
     jags_data <- list(n = n, x = x, k = k)
   else
-    jags_data <- list(n = n, x = x, k = k)
+    jags_data <- list(n = n, x = x)
   
   #wrapper function for inits_function with only one argument chain as required by autorun.jags
   inits <- function(chain) inits_functionPEM(chain, misclass)
@@ -259,11 +254,10 @@ return(out)
 #'  chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
 #' @param data matrix, data frame or data set with positive integers, including zeros and of the minimal length 10
 #' @param prior.lambda numeric vector containing minimum and maximum of a uniform
-#' distribution used as prior for the Poisson parameter \code{lambda}, e.g. \cr \code{lambda} \eqn{\sim} \code{prior.lambda(*,*)=unif(*,*)}
+#' distribution used as prior for the Poisson parameter \code{lambda}, e.g. \cr \code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}
 #' @param prior.pi numeric vector containing parameters of a beta distribution
-#' describing prior knowledge about prevalence (proportion of contaminated samples), e.g. \cr \code{pi} \eqn{\sim} \code{prior.pi(*,*)=beta(*,*)}
-#' @param simulation logical, value \code{TRUE} means the function will be called within any simulation routine,
-#' in this case the graphical diagnostic interface will not be invoked (default \code{FALSE})
+#' describing prior knowledge about prevalence (proportion of contaminated samples), e.g. \cr \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}
+#' @param simulation not used any longer
 #' @param chains positive single numeric value, number of independent MCMC chains (default 3)
 #' @param burn positive single numeric value, length of the burn-in period (default 1000)
 #' @param thin positive single numeric value (default 1). The samples from every kth iteration will be used for 
@@ -310,7 +304,7 @@ return(out)
 #' # estimate using Bayes model for zero inflated data without invoking
 #' # graphical diagnostic interface
 #' rrisk.BayesZIP(data=zip.data, prior.lambda=c(0,100),prior.pi=c(1,1),
-#'  burn=100,update=1000,simulation=TRUE)
+#'  burn=100,update=1000)
 #'
 #' # compare with naive results ignoring ZIP model
 #' pi.crude <- sum(zip.data>0)/n
@@ -320,13 +314,13 @@ return(out)
 #' resZIP@@results
 #' }
 
-rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simulation=FALSE,
+rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simulation=NULL,
                            chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
 {
   # -----------------------------------------------------------------------------
   # check input arguments
   # -----------------------------------------------------------------------------
-  checkInputZIP(data, prior.lambda, prior.pi, simulation, chains, burn, thin, update, workdir, plots)
+  checkInputZIP(data, prior.lambda, prior.pi, chains, burn, thin, update, workdir, plots)
 
   #-----------------------------------------------------------------------------
   # create outlist
@@ -346,6 +340,7 @@ rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simula
   model_function <- modelFunctionZIP
   model <- model_function(pi_prior = prior.pi, lambda_prior = prior.lambda)
 
+  
   #-----------------------------------------------------------------------------
   # run model
   #-----------------------------------------------------------------------------
@@ -383,7 +378,7 @@ rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simula
 ################################################################################
 ################################################################################
 
-rrisk.BayesZINB <- function(data, prior.r=c(1,10), prior.p=c(0, 1), prior.pi=c(0.8, 1), simulation=FALSE,
+rrisk.BayesZINB <- function(data, prior.r=c(1,10), prior.p=c(0, 1), prior.pi=c(0.8, 1), simulation=NULL,
                            chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
 {
   # -----------------------------------------------------------------------------

@@ -1,6 +1,3 @@
-
-
-
 ################################################################################
 ################################################################################
 #' @name plotDiag
@@ -19,9 +16,11 @@
 #' @export
 
 plotDiag <- function(x, plot.type="all"){
+  nvars <- length(x$monitor)
+  
   switch(plot.type,
          #Gelman-Rubin - Old: rrisk.sampleBgr
-         "gelman" = gelman.plot(x) ,
+         "gelman" = gelman.plot(x),
 
          #Traceplot - Old: plotHistory
          "trace" = plot(x, plot.type= "trace"),
@@ -35,14 +34,13 @@ plotDiag <- function(x, plot.type="all"){
          #Density - Old: plotDensity
          "density" = {
            mcmcobj <- suppressWarnings(as.mcmc(x))
-           par(mfrow=c(1,3))
+           par(mfrow=c(1,nvars))
            densplot(mcmcobj)
            par(mfrow=c(1,1))
          },
 
-         "all" =
-         {
-           par(mfrow = c(2,3))
+         "all" = {
+           par(mfrow = c(2,nvars))
            gelman.plot(x, auto.layout = FALSE)
            mcmcobj <- suppressWarnings(as.mcmc(x))
            densplot(mcmcobj)

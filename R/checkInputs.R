@@ -32,9 +32,9 @@ checkInputPEM <- function(x,
     stop("INVALID INPUT, one or more of the following arguments is not positive: 'chains', 'burn', 'update', 'thin'!",call.=FALSE)
   }
   
-  if(!is.element(misclass,c("pool","individual","individual-fix-sp", "individual-fix-se")))
+  if(!is.element(misclass,c("pool","individual","individual-fix-sp", "individual-fix-se", "compare")))
   { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, misclass should be 'pool','individual', 'individual-fix-sp' or individual-fix-se!",call.=FALSE)
+    stop("INVALID INPUT, misclass should be 'pool','individual', 'individual-fix-sp', 'individual-fix-se' or 'compare'!",call.=FALSE)
   }
   
   if (missing(x) | missing(n))
@@ -107,13 +107,13 @@ checkInputPEM <- function(x,
 checkInputZIP <- function(data,
                           prior.lambda,
                           prior.pi,
-                          simulation,
                           chains,
                           burn,
                           thin,
                           update,
                           workdir,
                           plots){
+
   if (missing(data))
   { on.exit(return(invisible(NA)))
     stop("INVALID INPUT, missing one or more of the function arguments: 'data', 'prior.lambda', 'prior.pi'!", call. = FALSE)
