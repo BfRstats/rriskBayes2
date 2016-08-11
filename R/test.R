@@ -52,38 +52,38 @@ resPEM1 <- rrisk.BayesPEM(x=x, n=n, k=k,
 ################################################################################
 ################################################################################
 # generate ZIP data
-pi <- 0.8 #0.01
-n <- 200
-lambda <- 3.5
-zip.data <- rep(0, n)
-zip.data[sample(1:n, n*pi, replace=FALSE)] <- rpois(n*pi, lambda=lambda)
-resZIP <- rrisk.BayesZIP(data = zip.data)
+# Beispieldaten generieren:
+set.seed(42)
+
+n_true_neg <- 200
+n_true_pos <- 300
+n <- n_true_pos + n_true_neg
+lambda_true <- 0.5
+
+y_neg <- rep(0, n_true_neg)
+y_pos <- rpois(n_true_pos, lambda_true)
+y <- c(y_pos, y_neg)
+
+# Daten:
+jags_data <- list(y = y, n = n)
+# PriorS:
+lambda_prior <- c(0, 100)
+pi_prior     <- c(1, 1)
+
+
+resZIP <- rrisk.BayesZIP(data = y, prior.lambda = lambda_prior, prior.pi = pi_prior)
+
 # estimate using Bayes model for zero inflated data
 resZIP@results
 
-rnbinom(n, size, prob, mu)
+prev_true <- n_true_pos / n
+n_false0 <- sum(y_pos == 0)
+n_pos <- sum(y_pos != 0)
+# 
+# zinb.data <- rep(0, n)
+# zinb.data[sample(1:n, n*pi, replace=FALSE)] <- rnbinom(n*pi, size=65, prob=0.6)
+# resZINB <- rrisk.BayesZINB(data = zinb.data)
+# 
 
-zinb.data <- rep(0, n)
-zinb.data[sample(1:n, n*pi, replace=FALSE)] <- rnbinom(n*pi, size=65, prob=0.6)
-resZINB <- rrisk.BayesZINB(data = zinb.data)
-
-# 
-# 
-# n <- 10
-# lambda  <-  runif(1, 0, 100)
-# pi  <-   0.8 #dbeta(1, 1)
-# library(MASS)
-# parms <- fitdistr(zip.data, "poisson")
-# y <- mu <- I <- rep(0, n)
-# mu[1] <- parms$estimate
-# 
-# check <- function() {
-#   for (i in 1:n) {
-#     mu[i] <- I[i] * lambda
-#     y[i]  <- rpois(n = 1, lambda = mu[i])
-#     I[i] <- rbinom(1, 1, pi)
-#   }
-#   return(list(I=I,mu=mu,y=y))
-# }
 
 

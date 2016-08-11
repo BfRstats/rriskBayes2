@@ -2,192 +2,34 @@
 ################################################################################
 
 #-----------------------------------------------------------------------------
-# checking input for rrisk.BayesPEM
+# functions applicable for all methods
 #-----------------------------------------------------------------------------
-checkInputPEM <- function(x,
-                       n,
-                       k,
-                       prior.pi,
-                       prior.se,
-                       prior.sp,
-                       chains,
-                       burn,
-                       thin,
-                       update,
-                       misclass,
-                       workdir,
-                       plots
-) {
-  try.setwd<-try(setwd(workdir),silent=TRUE)
-  if(inherits(try.setwd, "try-error"))
-  { on.exit(return(invisible(NA)))
-    error.mess<-paste("INVALID INPUT, the working directory could not be found! Your input is \n",workdir)
-    stop(error.mess,call.=FALSE)
-  }
 
-  if(!is.logical(plots))
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, the argument 'plots' should be of type logical!",call.=FALSE)
-  }
-
-  if(chains<=0 | burn<=0 | update<=0 | thin <1)
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, one or more of the following arguments is not positive: 'chains', 'burn', 'update', 'thin'!",call.=FALSE)
-  }
-
-  if(!is.element(misclass,c("pool","individual","individual-fix-sp", "individual-fix-se")))
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, misclass should be 'pool','individual', 'individual-fix-sp' or individual-fix-se!",call.=FALSE)
-  }
-
-  if (missing(x) | missing(n))
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, missing one or more of the following arguments: 'x', 'n'!", call. = FALSE)
-  }
-
-  if(!is.numeric(chains) | !is.numeric(burn) | !is.numeric(update) | !is.numeric(x) | !is.numeric(n))
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, one or more of the following arguments is not numeric: 'chains', 'burn', 'update', 'x', 'n' !",call.=FALSE)
-  }
+################################################################################
+################################################################################
+#-----------------------------------------------------------------------------
+# select random number generators (only up to 5 chains)
+#-----------------------------------------------------------------------------
+RNGs <- function(chain)
+{
+  .RNG.seed <- c(1, 2, 3, 4, 5)[chain]
+  .RNG.name <- c(
+    "lecuyer::RngStream",
+    "base::Super-Duper",
+    "base::Wichmann-Hill",
+    "base::Mersenne-Twister",
+    "base::Marsaglia-Multicarry"
+  )[chain]
   
-  if(length(prior.sp)+length(prior.se)+length(prior.pi) < 5)
-  { on.exit(return(invisible(NA)))
-    stop("Only one variable ('se' or 'sp') can be fix!",call.=FALSE)
-  }
-
-  if (misclass == "pool") {
-    if(missing(k) | !is.numeric(k))
-    {
-      on.exit(return(invisible(NA)))
-      stop("INVALID INPUT, missing or non-numeric 'k'!", call. = FALSE)
-    }
-
-    max.l <- max(length(x),length(n),length(k)) # variable pool size disabled
-    if((length(x) == max.l)*(length(n) == max.l)*(length(k) == max.l) != 1)
-    { on.exit(return(invisible(NA)))
-      stop("INVALID INPUT, equal length of arguments 'x', 'n' and 'k' required.",call.=FALSE)
-    }
-
-    if (missing(prior.pi) | missing(prior.se) | missing(prior.sp))
-    {
-      on.exit(return(invisible(NA)))
-      stop("INVALID INPUT, missing one or more of the following prior arguments: 'prior.pi', 'prior.se', 'prior.sp'!", call. = FALSE)
-    }
-
-    if(length(prior.pi)!=2 | length(prior.se)!=2 | length(prior.sp)!=2)
-    { on.exit(return(invisible(NA)))
-      stop("Two parameters for the beta prior distribution for prevalence, sensitivity and specificity are required",call.=FALSE)
-    }
-
-
-  } else if (misclass == "individual-fix-sp") {
-    if (length(prior.sp) != 1) {
-      on.exit(return(invisible(NA)))
-      stop("Specifity must be a fix value!")
-    }
-
-
-  } else if (misclass == "individual-fix-se") {
-    if (length(prior.se) != 1) {
-      on.exit(return(invisible(NA)))
-      stop("Sensitivity must be a fix value!")
-    }
-
-
-  } else if (misclass == "individual" & !is.null(prior.pi))
-  {
-    warning("Your beta values are ignored. Beta prior is automatically set to c(1,1)!")
-  }
-
-
-  if(min(prior.pi)<=0 | min(prior.se)<=0 | min(prior.sp)<=0)
-  { on.exit(return(invisible(NA)))
-    stop("Parameters of the beta prior distribution for prevalence, sensitivity and specificity should be strictly positive!",call.=FALSE)
-  }
-
+  return(list(.RNG.seed = .RNG.seed, .RNG.name = .RNG.name))
 }
 
 ################################################################################
 ################################################################################
 
 #-----------------------------------------------------------------------------
-# checking input for rrisk.BayesZIP
+# functions applicable for specific methods
 #-----------------------------------------------------------------------------
-checkInputZIP <- function(data,
-                          prior.lambda,
-                          prior.pi,
-                          simulation,
-                          chains,
-                          burn,
-                          thin,
-                          update,
-                          workdir,
-                          plots){
-  if (missing(data))
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, missing one or more of the function arguments: 'data', 'prior.lambda', 'prior.pi'!", call. = FALSE)
-  }
-  
-  if (!is.numeric(data) |!is.numeric(prior.lambda) | !is.numeric(prior.pi) | !is.numeric(chains) | !is.numeric(burn) | !is.numeric(update))
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, one or more of the following arguments is not numeric: 'data', 'prior.lambda', 'prior.pi', 'chains', 'burn', 'update'!",
-         call. = FALSE)
-  }
-  
-  if (!is.logical(plots))
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, the argument 'plots' should be of type logical!", call. = FALSE)
-  }
-  
-  if (chains <= 0 | burn <= 0 | update <= 0 | thin < 1)
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, one or more of the following arguments is not positive: 'chains', 'burn', 'update', 'thin'!", call. = FALSE)
-  }
-  
-  if (length(prior.lambda) != 2 | length(prior.pi) != 2)
-  { on.exit(return(invisible(NA)))
-    stop("INVALID INPUT, the arguments 'prior.lambda' and 'prior.pi' should be of length 2!", call. = FALSE)
-  }
-  
-  try.setwd <- try(setwd(workdir), silent = TRUE)
-  if (inherits(try.setwd, "try-error"))
-  { on.exit(return(invisible(NA)))
-    error.mess <- paste("INVALID INPUT, the working directory could not be found! Your input is \n", workdir)
-    stop(error.mess, call. = FALSE)
-  }
-  
-  #-----------------------------------------------------------------------------
-  # plausibility check on data
-  #-----------------------------------------------------------------------------
-  if (length(data) < 10)
-  { on.exit(return(invisible(NA)))
-    stop("Data set too small for this purpose!", call. = FALSE)
-  }
-  
-  if (min(data) < 0)
-  { on.exit(return(invisible(NA)))
-    stop("Negative counts in data set are not allowed!", call. = FALSE)
-  }
-  
-  if (any(abs(round(data) - data) != 0))
-  { on.exit(return(invisible(NA)))
-    stop("Data set contains non-integer values!", call. = FALSE)
-  }
-  
-  #-----------------------------------------------------------------------------
-  # plausibility check on priors
-  #-----------------------------------------------------------------------------
-  if (min(prior.pi) <= 0)
-  { on.exit(return(invisible(NA)))
-    stop("Parameters of the beta prior distribution for prevalence should not be negative!", call. = FALSE)
-  }
-  
-  if (min(prior.lambda) < 0)
-  { on.exit(return(invisible(NA)))
-    stop("Parameters of the uniform prior distribution used as prior for the Poisson parameter should be strictly positive!", call. = FALSE)
-  }
-}
-
 
 ################################################################################
 ################################################################################
@@ -198,7 +40,7 @@ checkInputZIP <- function(data,
 
 modelFunctionPEM <- function(misclass) {
   if (misclass == "individual") {
-    model_string <- function(pi_prior = c(1, 1), se_prior, sp_prior) {
+    model_string <- function(pi_prior = pi_prior, se_prior, sp_prior) {
       sprintf(
         "model {
         pi ~  dbeta(%g, %g)                 # prevalence
@@ -292,25 +134,24 @@ modelFunctionPEM <- function(misclass) {
 # defining the models for rrisk.BayesZIP
 #-----------------------------------------------------------------------------
 
-modelFunctionZIP <- function(lambda_prior, pi_prior) {
+modelFunctionZIP <- function(pi_prior, lambda_prior) {
   sprintf(
     "model{
-        lambda  ~  dunif(%g, %g)
         pi  ~  dbeta(%g, %g)
-    
+        lambda  ~  dunif(%g, %g)
+       
         for (i in 1:n){
           y[i]  ~ dpois(mu[i])
           mu[i] <- I[i] * lambda
           I[i] ~ dbern(pi)
         } 
-    
-        #inits# lambda, pi
-        #monitor# lambda, pi
+
+        #monitor# pi, lambda
       }", 
-        lambda_prior[1],
-        lambda_prior[2],
         pi_prior[1],
-        pi_prior[2]
+        pi_prior[2],
+        lambda_prior[1],
+        lambda_prior[2]
         )
   }
 
@@ -362,14 +203,9 @@ inits_functionPEM <- function(chain, misclass) {
   se <- c(0.9, 0.8, 0.7, 0.6, 0.75)[chain]
   sp <- c(0.7, 0.9, 0.8, 0.85, 0.95)[chain]
   
-  .RNG.seed <- c(1, 2, 3, 4, 5)[chain]
-  .RNG.name <- c(
-    "lecuyer::RngStream",
-    "base::Super-Duper",
-    "base::Wichmann-Hill",
-    "base::Mersenne-Twister",
-    "base::Marsaglia-Multicarry"
-  )[chain]
+  randNr <- RNGs(chain)
+  .RNG.seed <- randNr$.RNG.seed
+  .RNG.name <- randNr$.RNG.name
   
   if (misclass == "individual-fix-se") {
     inits.list <- list(
@@ -403,27 +239,42 @@ inits_functionPEM <- function(chain, misclass) {
 #-----------------------------------------------------------------------------
 # defining the initialization parameters for rrisk.BayesZIP
 #-----------------------------------------------------------------------------
+inits_chainZIP <- function(chain, data, seed_nr = 33) {
+  set.seed(seed_nr)
+  # inits für chain 1: nur Einsen
+  I1 <- rep(1, data$n)
+  # inits für chain 2: Einsen, wenn y > 0 ist, sonst Nullen
+  I2 <- as.numeric(data$y != 0)
+  # inits für chains 3-5: zufälliger 0/1-Vektor, aber alle Positionen,
+  # für die y > 0 ist, werden auf Eins gesetzt
+  idx_pos <- which(data$y != 0)
+  I3 <- sample(c(0, 1), data$n, replace = TRUE)
+  I3[idx_pos] <- 1
+  I4 <- sample(c(0, 1), data$n, replace = TRUE)
+  I4[idx_pos] <- 1
+  I5 <- sample(c(0, 1), data$n, replace = TRUE)
+  I5[idx_pos] <- 1
+  I <- list(I1, I2, I3, I4, I5)[[chain]]
+  return(I)
+}
 
-inits_functionZIP <-  function(chain) {
+inits_functionZIP <-  function(chain, data) {
   # max number of chains: 5
   
   pi <- c(0.2, 0.5, 0.8, 0.9, 0.7)[chain]
-  lambda <- c(0.9, 0.8, 0.7, 0.6, 0.75)[chain]
+  lambda <- c(1, 80, 0.2, 2, 70)[chain]
+  I <- inits_chainZIP(chain = chain, data = data)
   
-  .RNG.seed <- c(1, 2, 3, 4, 5)[chain]
-  .RNG.name <- c(
-    "lecuyer::RngStream",
-    "base::Super-Duper",
-    "base::Wichmann-Hill",
-    "base::Mersenne-Twister",
-    "base::Marsaglia-Multicarry"
-  )[chain]
+  randNr <- RNGs(chain)
+  .RNG.seed <- randNr$.RNG.seed
+  .RNG.name <- randNr$.RNG.name
   
   inits.list <- list(
     .RNG.seed = .RNG.seed,
     .RNG.name = .RNG.name,
     pi = pi,
-    lambda = lambda
+    lambda = lambda,
+    I = I
   )
   return(inits.list)
 }
@@ -441,15 +292,10 @@ inits_functionZINB <-  function(chain) {
   r <- c(4, 5, 6, 7, 8)[chain]
   p <- c(0.9, 0.8, 0.7, 0.6, 0.75)[chain]
   pi <- c(0.2, 0.5, 0.8, 0.9, 0.7)[chain]
-  
-  .RNG.seed <- c(1, 2, 3, 4, 5)[chain]
-  .RNG.name <- c(
-    "lecuyer::RngStream",
-    "base::Super-Duper",
-    "base::Wichmann-Hill",
-    "base::Mersenne-Twister",
-    "base::Marsaglia-Multicarry"
-  )[chain]
+ 
+  randNr <- RNGs(chain)
+  .RNG.seed <- randNr$.RNG.seed
+  .RNG.name <- randNr$.RNG.name
   
   inits.list <- list(
     .RNG.seed = .RNG.seed,
@@ -562,11 +408,17 @@ writeModelPEM <- function(misclass) {
 #-----------------------------------------------------------------------------
 
 writeModelZIP <- function() {
-  
-  
-  
-  
-  
-  
-  
+  model <-
+      "model{
+        pi ~ dbeta(prior.pe[1], prior.pi[2])
+        lambda ~ dunif(prior.lambda[1], prior.lambda[2])
+
+        for (i in 1:n) {
+        y[i]  ~ dpois(mu[i])
+        mu[i] <- I[i] * lambda
+        I[i] ~ dbern(pi)
+        }
+        }"
+  return(model)
 }
+

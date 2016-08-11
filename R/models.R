@@ -1,4 +1,3 @@
-
 ################################################################################
 ################################################################################
 #' @description Bayesian PEM models provide the posterior distribution for the true prevalence (\code{pi}),
@@ -149,7 +148,7 @@
 rrisk.BayesPEM <- function(x,
                            n,
                            k,
-                           prior.pi,
+                           prior.pi = c(1, 1),
                            prior.se,
                            prior.sp,
                            misclass = "pool",
@@ -190,8 +189,6 @@ rrisk.BayesPEM <- function(x,
   #-----------------------------------------------------------------------------
   # run model
   #-----------------------------------------------------------------------------
-  
-  #run model
   jags_res <- autorun.jags(
     model    = model,
     data     = jags_data,
@@ -220,7 +217,7 @@ rrisk.BayesPEM <- function(x,
   out@results <- jags_res
 
 return(out)
-} # end of function
+} # end of function rrisk.BayesPEM
 
 
 
@@ -330,32 +327,29 @@ rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simula
   # check input arguments
   # -----------------------------------------------------------------------------
   checkInputZIP(data, prior.lambda, prior.pi, simulation, chains, burn, thin, update, workdir, plots)
+
   #-----------------------------------------------------------------------------
   # create outlist
   #-----------------------------------------------------------------------------
   out <- new("bayesmodelClass")
 
-   #-----------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------
   # a priori model definitions
   #-----------------------------------------------------------------------------
+  #data
+  jags_data <- list(y = data, n = length(data))
+
   #wrapper function for inits_function with only one argument chain as required by autorun.jags
-  inits <- inits_functionZIP
-  
+  inits <- function(chains) inits_functionZIP(chain=chains, data = jags_data)
+
   #define model
   model_function <- modelFunctionZIP
-  model <- model_function(lambda_prior = prior.lambda, pi_prior = prior.pi)
-  
-  #-----------------------------------------------------------------------------
-  # write data
-  #-----------------------------------------------------------------------------
-  jags_data <- list(y = data, n = length(data))
+  model <- model_function(pi_prior = prior.pi, lambda_prior = prior.lambda)
 
   #-----------------------------------------------------------------------------
   # run model
   #-----------------------------------------------------------------------------
-
-  #run model
-  jags_res <- autorun.jags(
+   jags_res <- autorun.jags(
     model    = model,
     data     = jags_data,
     n.chains = chains,
@@ -367,10 +361,21 @@ rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simula
     thin     = thin,
     plots    = FALSE
   )
+  
+  if(plots)
+    plotDiag(jags_res)
 
   #-----------------------------------------------------------------------------
   # output
   #-----------------------------------------------------------------------------
+  out@nodes <- jags_res$monitor
+  out@model <- writeModelZIP()
+  out@chains <- chains
+  out@burn <- burn
+  out@update <- update
+  out@jointpost <- (sample(jags_res))$mcmc[[1]]
+  out@results <- jags_res
+  
   return(out)
   } # end of function rrisk.BayesZIP()
 
@@ -408,8 +413,6 @@ rrisk.BayesZINB <- function(data, prior.r=c(1,10), prior.p=c(0, 1), prior.pi=c(0
   #-----------------------------------------------------------------------------
   # run model
   #-----------------------------------------------------------------------------
-  
-  #run model
   jags_res <- autorun.jags(
     model    = model,
     data     = jags_data,
