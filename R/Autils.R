@@ -28,6 +28,20 @@ RNGs <- function(chain)
 ################################################################################
 
 #-----------------------------------------------------------------------------
+# convergence check
+#-----------------------------------------------------------------------------
+
+checkPSRF <- function(x){
+  x$psrf$psrf
+  
+  ##check if psrf is smaller than target psrf
+  res <- any(res@results$psrf$psrf[,"Point est."]< res@results$psrf$psrf.target)
+  return(res)
+}
+################################################################################
+################################################################################
+
+#-----------------------------------------------------------------------------
 # functions applicable for specific methods
 #-----------------------------------------------------------------------------
 
@@ -37,10 +51,9 @@ RNGs <- function(chain)
 #-----------------------------------------------------------------------------
 # defining the models for rrisk.BayesPEM
 #-----------------------------------------------------------------------------
-
 modelFunctionPEM <- function(misclass) {
   if (misclass == "individual") {
-    model_string <- function(pi_prior = pi_prior, se_prior, sp_prior) {
+    model_string <- function(pi_prior, se_prior, sp_prior) {
       sprintf(
         "model {
         pi ~  dbeta(%g, %g)                 # prevalence
@@ -105,15 +118,14 @@ modelFunctionPEM <- function(misclass) {
         sprintf(
           "model {
         pi  ~  dbeta(%g, %g)                 # prevalence
-        seP ~  dbeta(%g, %g)                 # (pooled test) sensitivity
-        spP ~  dbeta(%g, %g)                 # (pooled test) specificity
+        se ~  dbeta(%g, %g)                  # (pooled test) sensitivity
+        sp ~  dbeta(%g, %g)                  # (pooled test) specificity
         p.neg <- pow(1-pi, k)                # probability of a disease-free pool
-        ap  <- (1-p.neg)*seP + p.neg*(1-spP) # probability for a pool
-        # to test positive
+        ap  <- (1-p.neg)*se + p.neg*(1-sp)   # apparent prevalence
         x   ~  dbin(ap, n)                   # number of positive pools
           
-        #inits# pi, seP, spP
-        #monitor# pi, seP, spP
+        #inits# pi, se, sp
+        #monitor# pi, se, sp
       }",
         pi_prior[1],
         pi_prior[2],
@@ -127,28 +139,30 @@ modelFunctionPEM <- function(misclass) {
   model_string <- function(pi_prior, se_prior, sp_prior) {
     sprintf(
       "model {
-           prior.pi <- c(%g, %g)
-           prior.se <- c(%g, %g)
-           prior.sp <- c(%g, %g)
+        pi1 ~ dbeta(%g, %g)
+        pi2 ~ dbeta(%g, %g)
+        se ~ dbeta(%g, %g)
+        sp ~ dbeta(%g, %g)
+      
+        x1 <- x
+        x2 <- x
 
-           pi1 ~ dbeta(prior.pi[1],prior.pi[2])
-           pi2 ~ dbeta(prior.pi[1],prior.pi[2])
-           se ~ dbeta(prior.se[1],prior.se[2])
-           sp ~ dbeta(prior.sp[1],prior.sp[2])
-           x1 <- x
-           x2 <- x
-           p.neg <- pow(1-pi1, k)
-           p.pos <- (1-p.neg)*se + p.neg*(1-sp)
-           x1 ~ dbin(p.pos, n)
-           ap <- pi2*se + (1-pi2)*(1-sp)
-           p <- 1- pow(1-ap,k)
-           x2 ~ dbin(p,n)
-           d <- pi1 - pi2
+        p.neg <- pow(1-pi1, k)
+        p.pos <- (1-p.neg)*se + p.neg*(1-sp)
+        x1 ~ dbin(p.pos, n)
 
-          #inits# pi, se, sp
-          #monitor# pi1, pi2, se, sp, d
+        ap <- pi2*se + (1-pi2)*(1-sp)
+        p <- 1- pow(1-ap,k)
+        x2 ~ dbin(p,n)
+
+        d <- pi1 - pi2
+
+        #inits# pi1, pi2, se, sp
+        #monitor# pi1, pi2, se, sp, d
       }"
       ,
+      pi_prior[1],
+      pi_prior[2],
       pi_prior[1],
       pi_prior[2],
       se_prior[1],
@@ -175,9 +189,9 @@ modelFunctionZIP <- function(pi_prior, lambda_prior) {
         lambda  ~  dunif(%g, %g)
        
         for (i in 1:n){
-          y[i]  ~ dpois(mu[i])
-          mu[i] <- I[i] * lambda
-          I[i] ~ dbern(pi)
+           y[i]  ~ dpois(mu[i])
+           mu[i] <- I[i] * lambda
+           I[i] ~ dbern(pi)
         } 
 
         #monitor# pi, lambda
@@ -200,19 +214,19 @@ modelFunctionZIP <- function(pi_prior, lambda_prior) {
 modelFunctionZINB <- function(r_prior, p_prior, pi_prior) {
   sprintf(
     "model{
-    r  ~  dunif(%g, %g)
-    p  ~  dunif(%g, %g)
-    pi  ~  dbeta(%g, %g)
+        r  ~  dunif(%g, %g)
+        p  ~  dunif(%g, %g)
+        pi  ~  dbeta(%g, %g)
     
-    for (i in 1:n){
-     y[i]  ~ dnegbin(mu[i], r)  
-     mu[i] <- I[i] * p
-     I[i] ~ dbern(pi)
-    } 
+        for (i in 1:n){
+          y[i]  ~ dnegbin(mu[i], r)  
+          mu[i] <- I[i] * p
+          I[i] ~ dbern(pi)
+        } 
     
     #inits# r, p, pi
     #monitor# r, p, pi
-}", 
+    }", 
       r_prior[1],
       r_prior[2],
       p_prior[1],
@@ -220,8 +234,7 @@ modelFunctionZINB <- function(r_prior, p_prior, pi_prior) {
       pi_prior[1],
       pi_prior[2]
   )
-  }
-
+}
 
 ################################################################################
 ################################################################################
@@ -255,15 +268,24 @@ inits_functionPEM <- function(chain, misclass) {
       pi = pi,
       se = se
     )
-  } else if (misclass == "pool" | misclass == "individual" | misclass == "compare") {
+  } else if (misclass == "pool" | misclass == "individual") {
     inits.list <- list(
       .RNG.seed = .RNG.seed,
       .RNG.name = .RNG.name,
       pi = pi,
-      seP = se,
-      spP = sp
+      se = se,
+      sp = sp
     )
-  }
+  } else if (misclass == "compare") {
+    inits.list <- list(
+      .RNG.seed = .RNG.seed,
+      .RNG.name = .RNG.name,
+      pi1 = pi,
+      pi2 = pi,
+      se = se,
+      sp = sp
+    )
+  } 
   return(inits.list)
 }
 ################################################################################
@@ -319,13 +341,14 @@ inits_functionZIP <-  function(chain, data) {
 # defining the initialization parameters for rrisk.BayesZIP
 #-----------------------------------------------------------------------------
 
-inits_functionZINB <-  function(chain) {
+inits_functionZINB <-  function(chain, data) {
   # max number of chains: 5
   
   r <- c(4, 5, 6, 7, 8)[chain]
   p <- c(0.9, 0.8, 0.7, 0.6, 0.75)[chain]
   pi <- c(0.2, 0.5, 0.8, 0.9, 0.7)[chain]
- 
+  I <- inits_chainZIP(chain = chain, data = data)
+  
   randNr <- RNGs(chain)
   .RNG.seed <- randNr$.RNG.seed
   .RNG.name <- randNr$.RNG.name
@@ -335,7 +358,8 @@ inits_functionZINB <-  function(chain) {
     .RNG.name = .RNG.name,
     r = r,
     p = p,
-    pi = pi
+    pi = pi, 
+    I = I
   )
   return(inits.list)
 }

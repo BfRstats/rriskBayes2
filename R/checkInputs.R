@@ -87,11 +87,7 @@ checkInputPEM <- function(x,
       stop("Sensitivity must be a fix value!")
     }
     
-  } else if (misclass == "individual" & !is.null(prior.pi))
-  {
-    warning("Your beta values are ignored. Beta prior is automatically set to c(1,1)!")
-  }
-  
+  } 
   if(min(prior.pi)<=0 | min(prior.se)<=0 | min(prior.sp)<=0)
   { on.exit(return(invisible(NA)))
     stop("Parameters of the beta prior distribution for prevalence, sensitivity and specificity should be strictly positive!",call.=FALSE)
@@ -130,6 +126,12 @@ checkInputZIP <- function(data,
     stop("INVALID INPUT, the argument 'plots' should be of type logical!", call. = FALSE)
   }
   
+  ##From autorun.jags
+  if ( update < 4000){
+    on.exit(return(invisible(NA)))
+    stop("Update must be at least 4000 to complete the Raftery and Lewis's diagnostic ", call = FALSE)
+  }
+
   if (chains <= 0 | burn <= 0 | update <= 0 | thin < 1)
   { on.exit(return(invisible(NA)))
     stop("INVALID INPUT, one or more of the following arguments is not positive: 'chains', 'burn', 'update', 'thin'!", call. = FALSE)

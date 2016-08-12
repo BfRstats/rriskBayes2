@@ -2,6 +2,7 @@
 
 export(plotDiag)
 export(rrisk.BayesPEM)
+export(rrisk.BayesZINB)
 export(rrisk.BayesZIP)
 exportClasses(bayesmodelClass)
 exportMethods(show)

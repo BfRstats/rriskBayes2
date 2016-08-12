@@ -43,9 +43,9 @@
 #'    }}
 #' for misclassifications at the individual level with fixed sensitivity resp. specifity (\code{k=1} and \code{misclass="individual-fix-sp"})
 #' \preformatted{model{
-#'        pi ~ dbeta(prior.pi[1],prior.pi[2])
+#'        pi ~ dbeta(prior.pi[1], prior.pi[2])
 #'
-#'        se resp. sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'        se resp. sp ~ dbeta(prior.sp[1], prior.sp[2])
 #'
 #'        sp resp. se ~ fix
 #'
@@ -56,11 +56,11 @@
 #' For misclassification at the pool-level (\code{k>1} and \code{misclass="pool"})
 #' \preformatted{model{
 #'
-#'       pi ~ dbeta(prior.pi[1],prior.pi[2])
+#'       pi ~ dbeta(prior.pi[1], prior.pi[2])
 #'
-#'       se ~ dbeta(prior.se[1],prior.se[2])
+#'       se ~ dbeta(prior.se[1], prior.se[2])
 #'
-#'       sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'       sp ~ dbeta(prior.sp[1], prior.sp[2])
 #'
 #'       p.neg <- pow(1-pi,k)
 #'
@@ -71,13 +71,13 @@
 #' and for comparison (\code{k>1})
 #' \preformatted{model{
 #'
-#'       pi1 ~ dbeta(prior.pi[1],prior.pi[2])
+#'       pi1 ~ dbeta(prior.pi[1], prior.pi[2])
 #'
-#'       pi2 ~ dbeta(prior.pi[1],prior.pi[2])
+#'       pi2 ~ dbeta(prior.pi[1], prior.pi[2])
 #'
-#'       se ~ dbeta(prior.se[1],prior.se[2])
+#'       se ~ dbeta(prior.se[1], prior.se[2])
 #'
-#'       sp ~ dbeta(prior.sp[1],prior.sp[2])
+#'       sp ~ dbeta(prior.sp[1], prior.sp[2])
 #'
 #'       x1 <- x
 #'
@@ -169,7 +169,7 @@ rrisk.BayesPEM <- function(x,
   # a priori model definitions
   #-----------------------------------------------------------------------------
   #data
-  if (misclass == "pool")
+  if (misclass == "pool" | misclass == "compare")
     jags_data <- list(n = n, x = x, k = k)
   else
     jags_data <- list(n = n, x = x)
@@ -179,7 +179,7 @@ rrisk.BayesPEM <- function(x,
   
   #define model
   model_function <- modelFunctionPEM(misclass)
-  model <- model_function(pi_prior, se_prior, sp_prior)
+  model <- model_function(prior.pi, prior.se, prior.sp)
 
   #-----------------------------------------------------------------------------
   # run model
@@ -203,6 +203,7 @@ rrisk.BayesPEM <- function(x,
   #-----------------------------------------------------------------------------
   # output
   #-----------------------------------------------------------------------------
+  out@convergence <- checkPSRF(jags_res)
   out@nodes <- jags_res$monitor
   out@model <- writeModelPEM(misclass)
   out@chains <- chains
@@ -298,13 +299,8 @@ return(out)
 #'
 #' # estimate using Bayes model for zero inflated data
 #' resZIP<-rrisk.BayesZIP(data=zip.data, prior.lambda=c(0,100),prior.pi=c(1,1),
-#'  burn=100,update=1000)
+#'  burn=100,update=4000)
 #' resZIP@@results
-#'
-#' # estimate using Bayes model for zero inflated data without invoking
-#' # graphical diagnostic interface
-#' rrisk.BayesZIP(data=zip.data, prior.lambda=c(0,100),prior.pi=c(1,1),
-#'  burn=100,update=1000)
 #'
 #' # compare with naive results ignoring ZIP model
 #' pi.crude <- sum(zip.data>0)/n
@@ -314,73 +310,99 @@ return(out)
 #' resZIP@@results
 #' }
 
-rrisk.BayesZIP <- function(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simulation=NULL,
-                           chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
-{
-  # -----------------------------------------------------------------------------
-  # check input arguments
-  # -----------------------------------------------------------------------------
-  checkInputZIP(data, prior.lambda, prior.pi, chains, burn, thin, update, workdir, plots)
-
-  #-----------------------------------------------------------------------------
-  # create outlist
-  #-----------------------------------------------------------------------------
-  out <- new("bayesmodelClass")
-
-  #-----------------------------------------------------------------------------
-  # a priori model definitions
-  #-----------------------------------------------------------------------------
-  #data
-  jags_data <- list(y = data, n = length(data))
-
-  #wrapper function for inits_function with only one argument chain as required by autorun.jags
-  inits <- function(chains) inits_functionZIP(chain=chains, data = jags_data)
-
-  #define model
-  model_function <- modelFunctionZIP
-  model <- model_function(pi_prior = prior.pi, lambda_prior = prior.lambda)
-
-  
-  #-----------------------------------------------------------------------------
-  # run model
-  #-----------------------------------------------------------------------------
-   jags_res <- autorun.jags(
-    model    = model,
-    data     = jags_data,
-    n.chains = chains,
-    inits    = inits,
-    startburnin = burn,
-    startsample = update,
-    max.time = "3m",
-    method   = "rjags",
-    thin     = thin,
-    plots    = FALSE
-  )
-  
-  if(plots)
-    plotDiag(jags_res)
-
-  #-----------------------------------------------------------------------------
-  # output
-  #-----------------------------------------------------------------------------
-  out@nodes <- jags_res$monitor
-  out@model <- writeModelZIP()
-  out@chains <- chains
-  out@burn <- burn
-  out@update <- update
-  out@jointpost <- (sample(jags_res))$mcmc[[1]]
-  out@results <- jags_res
-  
-  return(out)
+rrisk.BayesZIP <-
+  function(data,
+           prior.lambda = c(1, 10),
+           prior.pi = c(0.8, 1),
+           simulation = NULL,
+           chains = 3,
+           burn = 1000,
+           thin = 1,
+           update = 10000,
+           workdir = getwd(),
+           plots = FALSE)
+  {
+    # -----------------------------------------------------------------------------
+    # check input arguments
+    # -----------------------------------------------------------------------------
+    checkInputZIP(data, prior.lambda, prior.pi, chains, burn, thin, update, workdir, plots)
+    
+    #-----------------------------------------------------------------------------
+    # create outlist
+    #-----------------------------------------------------------------------------
+    out <- new("bayesmodelClass")
+    
+    #-----------------------------------------------------------------------------
+    # a priori model definitions
+    #-----------------------------------------------------------------------------
+    #data
+    jags_data <- list(y = data, n = length(data))
+    
+    #wrapper function for inits_function with only one argument chain as required by autorun.jags
+    inits <- function(chains) inits_functionZIP(chain = chains, data = jags_data)
+    
+    #define model
+    model_function <- modelFunctionZIP
+    model <- model_function(pi_prior = prior.pi, lambda_prior = prior.lambda)
+    
+    #-----------------------------------------------------------------------------
+    # run model
+    #-----------------------------------------------------------------------------
+    jags_res <- autorun.jags(
+      model    = model,
+      data     = jags_data,
+      n.chains = chains,
+      inits    = inits,
+      startburnin = burn,
+      startsample = update,
+      max.time = "3m",
+      method   = "rjags",
+      thin     = thin,
+      plots    = FALSE
+    )
+    
+    if (plots)
+      plotDiag(jags_res)
+    
+    #-----------------------------------------------------------------------------
+    # output
+    #-----------------------------------------------------------------------------
+    out@convergence <- checkPSRF(jags_res)
+    out@nodes <- jags_res$monitor
+    out@model <- writeModelZIP()
+    out@chains <- chains
+    out@burn <- burn
+    out@update <- update
+    out@jointpost <- (sample(jags_res))$mcmc[[1]]
+    out@results <- jags_res
+    
+    return(out)
   } # end of function rrisk.BayesZIP()
 
 
 ################################################################################
 ################################################################################
 
-rrisk.BayesZINB <- function(data, prior.r=c(1,10), prior.p=c(0, 1), prior.pi=c(0.8, 1), simulation=NULL,
-                           chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
-{
+
+#' @name rrisk.BayesZINB
+#' @aliases rrisk.BayesZINB
+#' @title Bayes estimation of a zero inflated negative binomial (ZINB) model
+#' 
+#' @export
+rrisk.BayesZINB <-
+  function(data,
+           prior.r = c(1, 10),
+           prior.p = c(0.5, 1),
+           prior.pi = c(0.8, 1),
+           simulation = NULL,
+           chains = 3,
+           burn = 1000,
+           thin = 1,
+           update = 10000,
+           workdir = getwd(),
+           plots = FALSE)
+  {
+    
   # -----------------------------------------------------------------------------
   # check input arguments
   # -----------------------------------------------------------------------------
@@ -393,18 +415,16 @@ rrisk.BayesZINB <- function(data, prior.r=c(1,10), prior.p=c(0, 1), prior.pi=c(0
   #-----------------------------------------------------------------------------
   # a priori model definitions
   #-----------------------------------------------------------------------------
+  #data
+  jags_data <- list(y = data, n = length(data))
+  
   #wrapper function for inits_function with only one argument chain as required by autorun.jags
-  inits <- inits_functionZINB
+  inits <- function(chains) inits_functionZINB(chain = chains, data = jags_data)
   
   #define model
   model_function <- modelFunctionZINB
   model <- model_function(r_prior = prior.r, p_prior = prior.p, pi_prior = prior.p)
-  
-  #-----------------------------------------------------------------------------
-  # write data
-  #-----------------------------------------------------------------------------
-  jags_data <- list(y = data, n = length(data))
-  
+
   #-----------------------------------------------------------------------------
   # run model
   #-----------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 ################################################################################
 ################################################################################
-#' @description S4 class for displaying the output of the functions \code{rrisk.BayesRGE} and
+#' @description S4 class for displaying the output of the functions \code{rrisk.BayesPEM} and
 #' \code{rrisk.BayesZIP}.
 #'
 #' @name bayesmodelClass-class
@@ -14,7 +14,7 @@
 #' @slot model
 #' @slot chains
 #' @slot burn
-#' @slot updat
+#' @slot update
 #' @rdname bayesmodelClass-class
 #' @exportClass bayesmodelClass
 #' @examples
