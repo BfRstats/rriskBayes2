@@ -1,10 +1,10 @@
 #library(rriskBayes2)
-test_rrisk.BayesPEM <- function(misclass){
+test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
   switch(misclass,
          "individual"={
            n <- 100
            x <- 14
-           k <- NULL
+           k <- 1
            pi_prior <- c(1, 1)
            se_prior <- c(64, 4)
            sp_prior <- c(94, 16)
@@ -13,7 +13,7 @@ test_rrisk.BayesPEM <- function(misclass){
          "individual-fix-sp"={
            n <- 100
            x <- 14
-           k <- NULL
+           k <- 1
            pi_prior <- c(1, 1)
            se_prior <- c(64, 4)
            sp_prior <- 1
@@ -22,7 +22,7 @@ test_rrisk.BayesPEM <- function(misclass){
          "individual-fix-se"={
            n <- 100
            x <- 14
-           k <- NULL
+           k <- 1
            pi_prior <- c(1, 1)
            sp_prior <- c(24, 5)
            se_prior <- 0.8
@@ -40,38 +40,48 @@ test_rrisk.BayesPEM <- function(misclass){
          "compare"={
            n <- 100
            x <- 14
-           k <- NULL
+           k <- 4
            pi_prior <- c(1, 1)
            se_prior <- c(64, 4)
            sp_prior <- c(94, 16)
            misclass <- "compare"
          })
 
-  dat <- list(n = n, k = k, x = x)
-  data_type <- ifelse(k == 1, "individual", "pooled")
-
+  if(!gui)
   # Estimate using Bayes model at individual level
    resPEM <- rrisk.BayesPEM(x = x, n = n, k = k, 
-                            prior.se = se_prior,#
-                            prior.sp = sp_prior,#
-                            prior.pi = pi_prior,#
-                            misclass = misclass, #
-                            chains=3,#
+                            prior.se = se_prior,
+                            prior.sp = sp_prior,
+                            prior.pi = pi_prior,
+                            misclass = misclass, 
+                            chains=3,
                             burn = 4000,
                             thin = 1,
-                            update = 10000,#
-                            workdir=getwd(),#
-                            plot=TRUE#
-  )
+                            update = 10000,
+                            workdir=getwd(),
+                            plot=TRUE
+   )
+  else
+    resPEM <- PEMGUI(x = x, n = n, k = k, 
+                     prior.se = se_prior,
+                     prior.sp = sp_prior,
+                     prior.pi = pi_prior,
+                     chains=3,#
+                     burn = 4000,
+                     thin = 1,
+                     update = 10000)
+  
   return(resPEM)
 }
+
+
 ################################################################################
 ################################################################################
 # generate ZIP data
 # Beispieldaten generieren:
 
 
-test_rrisk.BayesZIP <- function() {
+test_rrisk.BayesZIP <- function(gui=FALSE) {
   set.seed(42)
   
   n_true_neg <- 200
@@ -89,22 +99,98 @@ test_rrisk.BayesZIP <- function() {
   lambda_prior <- c(0, 100)
   pi_prior     <- c(1, 1)
   
-  resZIP <- rrisk.BayesZIP( data = y,
-                            prior.lambda = lambda_prior,
-                            prior.pi = pi_prior,
-                            simulation = FALSE,
-                            chains = 3,
-                            burn = 4000,
-                            thin = 1,
-                            update = 10000,
-                            workdir = getwd(),
-                            plots = FALSE
- )
+  lambda_prior =c(0, 100)
+  pi_prior=c(1, 1)
+  
+  if(!gui)
+  resZIP <- rrisk.BayesZIP(data = y,
+                           prior.lambda = lambda_prior,
+                           prior.pi = pi_prior,
+                           simulation = FALSE,
+                           chains = 3,
+                           burn = 4000,
+                           thin = 1,
+                           update = 10000,
+                           workdir = getwd(),
+                           plots = TRUE
+  )
+  else
+    resZIP <- ZIPGUI(data=y, prior.lambda = lambda_prior,
+           prior.pi = pi_prior,
+           chains = 3,
+           burn = 4000,
+           thin = 1,
+           update = 10000)
   
   return(resZIP)
+}
+
+
+test_rrisk.BayesZINB <- function(gui = FALSE){
+  # Beispieldaten generieren:
+  set.seed(42)
+  
+  n_true_neg <- 60
+  n_true_pos <- 33
+  n <- n_true_pos + n_true_neg
+  
+  prev_true <- n_true_pos / n
+  
+  a <- 6
+  b <- 2
+  lambda_true <- rgamma(n_true_pos, a, b)
+  
+  y_neg <- rep(0, n_true_neg)
+  y_pos <- rpois(n_true_pos, lambda_true)
+  y <- c(y_pos, y_neg)
+  
+  pi_prior     <- c(1, 1)
+  
+  
+  if(!gui)
+    resZINB <- rrisk.BayesZINB(data = y,
+                               prior.pi = pi_prior,
+                               simulation = FALSE,
+                               chains = 3,
+                               burn = 4000,
+                               thin = 1,
+                               update = 10000,
+                               workdir = getwd(),
+                               plots = TRUE
+    )
+  
+  return(resZINB)
+  
 }
 
 
 
 
 
+#------------------------------------------
+# Example of PEM model (k>1)
+#------------------------------------------
+set.seed(2804)
+pi <- 0.01
+se <- 0.96
+se.n <- 1000
+sp <- 0.99
+sp.n <- 1000
+n <- sample(10:1000,1,replace=TRUE)  # stochatsic sample size
+k <- sample(5:50,1,replace=FALSE)    # stochastic pool size
+
+# Parameters for beta priors
+se.a <- se.n*se+1
+se.b <- se.n*(1-se)+1
+sp.a <- sp.n*sp+1
+sp.b <- sp.n*(1-sp)+1
+
+# Random number of positive pools (x) considering uncertainty of se and sp
+ap <- pi*se + (1-pi)*(1-sp)
+p.pos <- 1-(1-ap)^k
+x <- rbinom(1,prob=p.pos,size=n)
+
+# Estimate using Bayes model compared
+resPEM3 <- rrisk.BayesPEM(x=x, n=n,k=k,
+                          prior.pi=c(1,1),prior.se=c(se.a,se.b),prior.sp=c(sp.a,sp.b),
+                          misclass="compare", plot=TRUE)

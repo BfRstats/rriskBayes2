@@ -14,7 +14,8 @@ checkInputPEM <- function(x,
                           misclass,
                           workdir,
                           plots
-) {
+                          )
+{
   try.setwd<-try(setwd(workdir),silent=TRUE)
   if(inherits(try.setwd, "try-error"))
   { on.exit(return(invisible(NA)))
@@ -108,10 +109,12 @@ checkInputZIP <- function(data,
                           thin,
                           update,
                           workdir,
-                          plots){
-
-  if (missing(data))
-  { on.exit(return(invisible(NA)))
+                          plots
+                          )
+{
+  if (missing(data) | missing(prior.lambda) | missing(prior.pi))
+  { 
+    on.exit(return(invisible(NA)))
     stop("INVALID INPUT, missing one or more of the function arguments: 'data', 'prior.lambda', 'prior.pi'!", call. = FALSE)
   }
   
@@ -126,12 +129,6 @@ checkInputZIP <- function(data,
     stop("INVALID INPUT, the argument 'plots' should be of type logical!", call. = FALSE)
   }
   
-  ##From autorun.jags
-  if ( update < 4000){
-    on.exit(return(invisible(NA)))
-    stop("Update must be at least 4000 to complete the Raftery and Lewis's diagnostic ", call = FALSE)
-  }
-
   if (chains <= 0 | burn <= 0 | update <= 0 | thin < 1)
   { on.exit(return(invisible(NA)))
     stop("INVALID INPUT, one or more of the following arguments is not positive: 'chains', 'burn', 'update', 'thin'!", call. = FALSE)
@@ -180,3 +177,82 @@ checkInputZIP <- function(data,
     stop("Parameters of the uniform prior distribution used as prior for the Poisson parameter should be strictly positive!", call. = FALSE)
   }
 }
+
+################################################################################
+################################################################################
+
+#-----------------------------------------------------------------------------
+# checking input for rrisk.BayesZIP
+#-----------------------------------------------------------------------------
+checkInputZINB <- 
+  function(data,
+           prior.pi = c(0.8, 1),
+           simulation = NULL,
+           chains = 3,
+           burn = 1000,
+           thin = 1,
+           update = 10000,
+           workdir = getwd(),
+           plots = FALSE){
+    
+    if (missing(data) | missing(prior.pi))
+    { 
+      on.exit(return(invisible(NA)))
+      stop("INVALID INPUT, missing one or more of the function arguments: 'data', 'prior.pi'!", call. = FALSE)
+    }
+    
+    if (!is.numeric(data) | !is.numeric(prior.pi) | !is.numeric(chains) | !is.numeric(burn) | !is.numeric(update))
+    { on.exit(return(invisible(NA)))
+      stop("INVALID INPUT, one or more of the following arguments is not numeric: 'data', 'prior.pi', 'chains', 'burn', 'update'!",
+           call. = FALSE)
+    }
+    
+    if (!is.logical(plots))
+    { on.exit(return(invisible(NA)))
+      stop("INVALID INPUT, the argument 'plots' should be of type logical!", call. = FALSE)
+    }
+    
+    if (chains <= 0 | burn <= 0 | update <= 0 | thin < 1)
+    { on.exit(return(invisible(NA)))
+      stop("INVALID INPUT, one or more of the following arguments is not positive: 'chains', 'burn', 'update', 'thin'!", call. = FALSE)
+    }
+    
+    if (length(prior.pi) != 2)
+    { on.exit(return(invisible(NA)))
+      stop("INVALID INPUT, 'prior.pi' should be of length 2!", call. = FALSE)
+    }
+    
+    try.setwd <- try(setwd(workdir), silent = TRUE)
+    if (inherits(try.setwd, "try-error"))
+    { on.exit(return(invisible(NA)))
+      error.mess <- paste("INVALID INPUT, the working directory could not be found! Your input is \n", workdir)
+      stop(error.mess, call. = FALSE)
+    }
+    
+    #-----------------------------------------------------------------------------
+    # plausibility check on data
+    #-----------------------------------------------------------------------------
+    if (length(data) < 10)
+    { on.exit(return(invisible(NA)))
+      stop("Data set too small for this purpose!", call. = FALSE)
+    }
+    
+    if (min(data) < 0)
+    { on.exit(return(invisible(NA)))
+      stop("Negative counts in data set are not allowed!", call. = FALSE)
+    }
+    
+    if (any(abs(round(data) - data) != 0))
+    { on.exit(return(invisible(NA)))
+      stop("Data set contains non-integer values!", call. = FALSE)
+    }
+    
+    #-----------------------------------------------------------------------------
+    # plausibility check on priors
+    #-----------------------------------------------------------------------------
+    if (min(prior.pi) <= 0)
+    { on.exit(return(invisible(NA)))
+      stop("Parameters of the beta prior distribution for prevalence cannot be negative!", call. = FALSE)
+    }
+    
+  }

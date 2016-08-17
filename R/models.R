@@ -169,8 +169,10 @@ rrisk.BayesPEM <- function(x,
   # a priori model definitions
   #-----------------------------------------------------------------------------
   #data
-  if (misclass == "pool" | misclass == "compare")
+  if (misclass == "pool")
     jags_data <- list(n = n, x = x, k = k)
+  else if(misclass == "compare")
+    jags_data <- list(n = n, x1 = x, x2 = x, k = k)
   else
     jags_data <- list(n = n, x = x)
   
@@ -391,8 +393,6 @@ rrisk.BayesZIP <-
 #' @export
 rrisk.BayesZINB <-
   function(data,
-           prior.r = c(1, 10),
-           prior.p = c(0.5, 1),
            prior.pi = c(0.8, 1),
            simulation = NULL,
            chains = 3,
@@ -406,8 +406,9 @@ rrisk.BayesZINB <-
   # -----------------------------------------------------------------------------
   # check input arguments
   # -----------------------------------------------------------------------------
-  #checkInputZINP
-  #-----------------------------------------------------------------------------
+  checkInputZINB(data, prior.pi, simulation, chains, burn, thin, update, workdir, plots)
+  
+ #-----------------------------------------------------------------------------
   # create outlist
   #-----------------------------------------------------------------------------
   out <- new("bayesmodelClass")
@@ -423,7 +424,7 @@ rrisk.BayesZINB <-
   
   #define model
   model_function <- modelFunctionZINB
-  model <- model_function(r_prior = prior.r, p_prior = prior.p, pi_prior = prior.p)
+  model <- model_function(pi_prior = prior.pi)
 
   #-----------------------------------------------------------------------------
   # run model
@@ -442,9 +443,24 @@ rrisk.BayesZINB <-
   )
   
   #-----------------------------------------------------------------------------
+  # plots
+  #-----------------------------------------------------------------------------
+  if (plots)
+    plotDiag(jags_res)
+  
+  #-----------------------------------------------------------------------------
   # output
   #-----------------------------------------------------------------------------
-  return(out)
+  out@convergence <- checkPSRF(jags_res)
+  out@nodes <- jags_res$monitor
+  out@model <- writeModelZIP()
+  out@chains <- chains
+  out@burn <- burn
+  out@update <- update
+  out@jointpost <- (sample(jags_res))$mcmc[[1]]
+  out@results <- jags_res
+  
+ return(jags_res)
 } # end of function rrisk.BayesZIP()
 
 

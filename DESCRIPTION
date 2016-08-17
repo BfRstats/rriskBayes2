@@ -9,6 +9,8 @@ License: What license is it under?
 LazyData: TRUE
 Depends:
     rjags,
-    runjags
+    runjags,
+    tcltk,
+    tkrplot
 Suggests: coda    
 RoxygenNote: 5.0.1

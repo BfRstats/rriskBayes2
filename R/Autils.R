@@ -32,10 +32,8 @@ RNGs <- function(chain)
 #-----------------------------------------------------------------------------
 
 checkPSRF <- function(x){
-  x$psrf$psrf
-  
   ##check if psrf is smaller than target psrf
-  res <- any(res@results$psrf$psrf[,"Point est."]< res@results$psrf$psrf.target)
+  res <- any(x$psrf$psrf[,"Point est."]< x$psrf$psrf.target)
   return(res)
 }
 ################################################################################
@@ -143,10 +141,7 @@ modelFunctionPEM <- function(misclass) {
         pi2 ~ dbeta(%g, %g)
         se ~ dbeta(%g, %g)
         sp ~ dbeta(%g, %g)
-      
-        x1 <- x
-        x2 <- x
-
+  
         p.neg <- pow(1-pi1, k)
         p.pos <- (1-p.neg)*se + p.neg*(1-sp)
         x1 ~ dbin(p.pos, n)
@@ -206,35 +201,32 @@ modelFunctionZIP <- function(pi_prior, lambda_prior) {
 ################################################################################
 ################################################################################
 
-
 #-----------------------------------------------------------------------------
 # defining the models for rrisk.BayesZIP
 #-----------------------------------------------------------------------------
 
-modelFunctionZINB <- function(r_prior, p_prior, pi_prior) {
+modelFunctionZINB <- function(pi_prior) {
   sprintf(
-    "model{
-        r  ~  dunif(%g, %g)
-        p  ~  dunif(%g, %g)
-        pi  ~  dbeta(%g, %g)
-    
-        for (i in 1:n){
-          y[i]  ~ dnegbin(mu[i], r)  
-          mu[i] <- I[i] * p
+    "model {
+        pi     ~ dbeta(%g, %g)
+        dam ~ dgamma(0.01,0.01)
+        db ~ dgamma(0.01,0.01)
+          
+        for (i in 1:n) {
+          y[i]  ~ dpois(mu[i])
+          mu[i] <- I[i] * lambda[i]
           I[i] ~ dbern(pi)
-        } 
-    
-    #inits# r, p, pi
-    #monitor# r, p, pi
-    }", 
-      r_prior[1],
-      r_prior[2],
-      p_prior[1],
-      p_prior[2],
-      pi_prior[1],
-      pi_prior[2]
-  )
+          lambda[i] ~ dgamma(dam,db)
+        }
+          
+          #monitor# pi, dam, db
+      }", 
+        pi_prior[1], 
+        pi_prior[2]
+    )
 }
+
+ 
 
 ################################################################################
 ################################################################################
@@ -343,10 +335,10 @@ inits_functionZIP <-  function(chain, data) {
 
 inits_functionZINB <-  function(chain, data) {
   # max number of chains: 5
-  
-  r <- c(4, 5, 6, 7, 8)[chain]
-  p <- c(0.9, 0.8, 0.7, 0.6, 0.75)[chain]
   pi <- c(0.2, 0.5, 0.8, 0.9, 0.7)[chain]
+  dam <- c(1, 80, 0.2, 2, 70)[chain]
+  db <- c(2, 3, 10, 20, 2)[chain]
+  
   I <- inits_chainZIP(chain = chain, data = data)
   
   randNr <- RNGs(chain)
@@ -356,9 +348,9 @@ inits_functionZINB <-  function(chain, data) {
   inits.list <- list(
     .RNG.seed = .RNG.seed,
     .RNG.name = .RNG.name,
-    r = r,
-    p = p,
-    pi = pi, 
+    pi = pi,
+    dam = dam,
+    db = db, 
     I = I
   )
   return(inits.list)
@@ -421,11 +413,7 @@ writeModelPEM <- function(misclass) {
         se ~ dbeta(prior.se[1],prior.se[2])
       
         sp ~ dbeta(prior.sp[1],prior.sp[2])
-      
-        x1 <- x
-      
-        x2 <- x
-      
+  
         p.neg <- pow(1-pi1,k)
       
         p.pos <- (1-p.neg)*se + p.neg*(1-sp)
@@ -437,6 +425,8 @@ writeModelPEM <- function(misclass) {
         p <- 1- pow(1-ap,k)
       
         x2 ~ dbin(p,n)
+
+        d <- pi1 - pi2
       }"
       } else if (misclass == "pool") {
     model <-

@@ -7,14 +7,14 @@
 #' @aliases bayesmodelClass
 #' @docType class
 #' @title S4 class for displaying output of Bayesian models
-#' @slot convergence
-#' @slot results
-#' @slot jointposterior
-#' @slot nodes
-#' @slot model
-#' @slot chains
-#' @slot burn
-#' @slot update
+#' @slot convergence {logical, whether the model has converged (assessed by the user only if GUI was used)}
+#' @slot results summary of runjags object
+#' @slot jointposterior {data frame giving the joint posterior probability distribution}
+#' @slot nodes {names of the parameters jointly estimated by the Bayes model}
+#' @slot model {model in rjags/JAGS syntax}
+#' @slot chains {number of independent MCMC chains}
+#' @slot burn {length of burn-in period}
+#' @slot update {length of update iterations for estimation}
 #' @rdname bayesmodelClass-class
 #' @exportClass bayesmodelClass
 #' @examples

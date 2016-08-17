@@ -15,39 +15,27 @@
 #' @keywords manip
 #' @export
 
-plotDiag <- function(x, plot.type="all"){
+plotDiag <- function(x, plotnumber = "all", ...){
   nvars <- length(x$monitor)
   
-  switch(plot.type,
-         #Gelman-Rubin - Old: rrisk.sampleBgr
-         "gelman" = gelman.plot(x),
+  switch(plotnumber,
+         #Gelman-Rubin and Density - Old: plotnumber 1
+         "1" = try(gelman.plot(x)),
+         
+         #Traceplot - Old: plotHistory plotnumber 2
+         "2" = plot(x, plot.type = "trace", ...),
 
-         #Traceplot - Old: plotHistory
-         "trace" = plot(x, plot.type= "trace"),
+         #Autocorrelation - Old: plotAutoC  plotnumber 3
+         "3" = plot(x, plot.type = "autocorr", ...),
 
-         #Autocorrelation - Old: plotAutoC
-         "autocorr" = plot(x, plot.type = "autocorr"),
-
-         #Histogram
-         "histogram" = plot(x, plot.type = "histogram"),
-
-         #Density - Old: plotDensity
-         "density" = {
-           mcmcobj <- suppressWarnings(as.mcmc(x))
-           par(mfrow=c(1,nvars))
-           densplot(mcmcobj)
-           par(mfrow=c(1,1))
-         },
+         #Density
+         "4" = plot(x, plot.type = "density", ...),
 
          "all" = {
-           par(mfrow = c(2,nvars))
-           gelman.plot(x, auto.layout = FALSE)
-           mcmcobj <- suppressWarnings(as.mcmc(x))
-           densplot(mcmcobj)
-           par(mfrow=c(1,1))
-           plot(x, plot.type= "trace")
-           plot(x, plot.type = "autocorr")
-          # plot(x, plot.type = "histogram")
+           try(gelman.plot(x))
+           plot(x, plot.type="density", ...)
+           plot(x, plot.type= "trace", ...)
+           plot(x, plot.type = "autocorr", ...)
          }
 
   )
