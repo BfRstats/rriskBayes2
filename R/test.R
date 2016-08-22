@@ -28,6 +28,15 @@ test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
            se_prior <- 0.8
            misclass <- "individual-fix-se"
          },
+         "individual-fix-se-sp"={
+           n <- 100
+           x <- 14
+           k <- 1
+           pi_prior <- c(1, 1)
+           sp_prior <- 1
+           se_prior <- 0.8
+           misclass <- "individual-fix-se-sp"
+         },
          "pool"={
            n <- 100
            k <- 10
@@ -36,6 +45,33 @@ test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
            se_prior <- c(64, 4)
            sp_prior <- c(94, 16)
            misclass <- "pool"
+         },   
+         "pool-fix-se"={
+           n <- 100
+           x <- 14
+           k <- 1
+           pi_prior <- c(1, 1)
+           sp_prior <- c(24, 5)
+           se_prior <- 0.8
+           misclass <- "pool-fix-se"
+         },
+         "pool-fix-sp"={
+           n <- 100
+           x <- 14
+           k <- 4
+           pi_prior <- c(1, 1)
+           sp_prior <- 1
+           se_prior <- c(64, 4)
+           misclass <- "pool-fix-sp"
+         },
+         "pool-fix-se-sp"={
+           n <- 100
+           x <- 14
+           k <- 4
+           pi_prior <- c(1, 1)
+           sp_prior <- 1
+           se_prior <- 0.7
+           misclass <- "pool-fix-se-sp"
          },
          "compare"={
            n <- 100
@@ -60,7 +96,7 @@ test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
                             update = 10000,
                             workdir=getwd(),
                             plot=TRUE
-   )
+                            )
   else
     resPEM <- PEMGUI(x = x, n = n, k = k, 
                      prior.se = se_prior,
@@ -69,7 +105,8 @@ test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
                      chains=3,#
                      burn = 4000,
                      thin = 1,
-                     update = 10000)
+                     update = 10000
+                     )
   
   return(resPEM)
 }
@@ -128,7 +165,7 @@ test_rrisk.BayesZIP <- function(gui=FALSE) {
 
 test_rrisk.BayesZINB <- function(gui = FALSE){
   # Beispieldaten generieren:
-  set.seed(42)
+  #set.seed(42)
   
   n_true_neg <- 60
   n_true_pos <- 33
@@ -167,30 +204,4 @@ test_rrisk.BayesZINB <- function(gui = FALSE){
 
 
 
-#------------------------------------------
-# Example of PEM model (k>1)
-#------------------------------------------
-set.seed(2804)
-pi <- 0.01
-se <- 0.96
-se.n <- 1000
-sp <- 0.99
-sp.n <- 1000
-n <- sample(10:1000,1,replace=TRUE)  # stochatsic sample size
-k <- sample(5:50,1,replace=FALSE)    # stochastic pool size
 
-# Parameters for beta priors
-se.a <- se.n*se+1
-se.b <- se.n*(1-se)+1
-sp.a <- sp.n*sp+1
-sp.b <- sp.n*(1-sp)+1
-
-# Random number of positive pools (x) considering uncertainty of se and sp
-ap <- pi*se + (1-pi)*(1-sp)
-p.pos <- 1-(1-ap)^k
-x <- rbinom(1,prob=p.pos,size=n)
-
-# Estimate using Bayes model compared
-resPEM3 <- rrisk.BayesPEM(x=x, n=n,k=k,
-                          prior.pi=c(1,1),prior.se=c(se.a,se.b),prior.sp=c(sp.a,sp.b),
-                          misclass="compare", plot=TRUE)
