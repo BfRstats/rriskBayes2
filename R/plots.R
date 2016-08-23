@@ -19,20 +19,21 @@ plotDiag <- function(x, plotnumber = "all", ...){
   
   switch(plotnumber,
          #Gelman-Rubin and Density - Old: plotnumber 1
-         "1" = try(gelman.plot(x)),
+         "1" = plot(x, plot.type = "trace", ...), #try(gelman.plot(x)),
          
          #Traceplot - Old: plotHistory plotnumber 2
-         "2" = plot(x, plot.type = "trace", ...),
+         "2" = plot(x, plot.type = "ecdf", ...),
 
          #Autocorrelation - Old: plotAutoC  plotnumber 3
-         "3" = plot(x, plot.type = "autocorr", ...),
+         "3" = plot(x, plot.type = "hist", ...),
 
          #Density
-         "4" = plot(x, plot.type = "density", ...),
+         "4" = plot(x, plot.type = "autocorr", ...),
 
          "all" = {
            try(gelman.plot(x))
-           plot(x, plot.type="density", ...)
+           plot(x, plot.type="hist", ...)
+           plot(x, plot.type="ecdf", ...)
            plot(x, plot.type= "trace", ...)
            plot(x, plot.type = "autocorr", ...)
          }

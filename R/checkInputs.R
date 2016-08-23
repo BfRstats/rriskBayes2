@@ -22,6 +22,7 @@ checkMCparams <- function(chains, burn, thin, update){
     stop("INVALID INPUT, one or more of the following arguments is not numeric: 
          'chains', 'burn', 'update', 'x', 'n' !",call.=FALSE)
   }
+
 }
 
 checkEnvironParams <- function(workdir, plots){

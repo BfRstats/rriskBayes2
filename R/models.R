@@ -209,7 +209,7 @@ rrisk.BayesPEM <- function(x, n, k,
                            prior.pi = c(1, 1), prior.se, prior.sp,
                            simulation = FALSE,
                            misclass = "pool",
-                           chains = 3, burn = 1000, thin = 1, update = 10000,
+                           chains = 3, burn = 4000, thin = 1, update = 10000,
                            workdir = getwd(), plots = FALSE
                            )
 {
@@ -244,6 +244,7 @@ rrisk.BayesPEM <- function(x, n, k,
   model_function <- modelDefinitionPEM(misclass)
   model <- model_function(prior.pi, prior.se, prior.sp)
 
+  startburnin = burn - 1000 #burn - adapt
   #-----------------------------------------------------------------------------
   # run model
   #-----------------------------------------------------------------------------
@@ -252,9 +253,9 @@ rrisk.BayesPEM <- function(x, n, k,
     data     = jags_data,
     n.chains = chains,
     inits    = inits,
-    startburnin = burn,
+    startburnin = startburnin,
     startsample = update,
-    max.time = "3m",
+    max.time = "5secs",
     method   = "rjags",
     thin     = thin,
     plots    = FALSE
@@ -404,7 +405,7 @@ rrisk.BayesZIP <-  function(data,
                             prior.lambda = c(1, 10), prior.pi = c(0.8, 1),
                             simulation = FALSE,
                             chains = 3,
-                            burn = 1000,
+                            burn = 4000,
                             thin = 1,
                             update = 10000,
                             workdir = getwd(),
@@ -433,6 +434,7 @@ rrisk.BayesZIP <-  function(data,
     model_function <- modelDefinitionZIP
     model <- model_function(pi_prior = prior.pi, lambda_prior = prior.lambda)
     
+    startburnin = burn - 1000 #burn - adapt
     #-----------------------------------------------------------------------------
     # run model
     #-----------------------------------------------------------------------------
@@ -441,7 +443,7 @@ rrisk.BayesZIP <-  function(data,
       data     = jags_data,
       n.chains = chains,
       inits    = inits,
-      startburnin = burn,
+      startburnin = startburnin,
       startsample = update,
       max.time = "3m",
       method   = "rjags",
@@ -601,7 +603,7 @@ rrisk.BayesZINB <-  function(data,
                              prior.pi = c(0.8, 1),
                              simulation = FALSE,
                              chains = 3,
-                             burn = 1000,
+                             burn = 4000,
                              thin = 1,
                              update = 10000,
                              workdir = getwd(),
@@ -631,6 +633,7 @@ rrisk.BayesZINB <-  function(data,
   model_function <- modelDefinitionZINB
   model <- model_function(pi_prior = prior.pi)
 
+  startburnin = burn - 1000 #burn - adapt
   #-----------------------------------------------------------------------------
   # run model
   #-----------------------------------------------------------------------------
@@ -639,7 +642,7 @@ rrisk.BayesZINB <-  function(data,
     data     = jags_data,
     n.chains = chains,
     inits    = inits,
-    startburnin = burn,
+    startburnin = startburnin,
     startsample = update,
     max.time = "3m",
     method   = "rjags",
