@@ -1,5 +1,7 @@
 ################################################################################
+#####rrisk.BayesPEM#####
 ################################################################################
+
 #' @description Bayesian PEM models provide the posterior distribution for the 
 #' true prevalence (\code{pi}), diagnostic sensitivity (\code{se}) and 
 #' specificity (\code{sp}) for a given empirical prevalence estimate using 
@@ -213,20 +215,14 @@ rrisk.BayesPEM <- function(x, n, k,
                            workdir = getwd(), plots = FALSE
                            )
 {
-  # -----------------------------------------------------------------------------
-  # check input arguments
-  # -----------------------------------------------------------------------------
+  ##### check input arguments #####
   checkInputPEM(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, thin, 
                 update, misclass, workdir, plots)
 
-  #-----------------------------------------------------------------------------
-  # create outlist
-  #-----------------------------------------------------------------------------
-  out<-new("bayesmodelClass")
+  ##### create outlist#####
+  out <- new("bayesmodelClass")
 
-  #-----------------------------------------------------------------------------
-  # a priori model definitions
-  #-----------------------------------------------------------------------------
+  ##### a priori model definitions#####
   #data
   if (misclass == "pool" | misclass == "pool-fix-se" | misclass == "pool-fix-sp" 
       | misclass == "pool-fix-se-sp")
@@ -236,6 +232,7 @@ rrisk.BayesPEM <- function(x, n, k,
   else
     jags_data <- list(n = n, x = x)
   
+  #####initialization #####
   #wrapper function for inits_function with only one argument chain as required 
   #by autorun.jags
   inits <- function(chain) inits_functionPEM(chain, misclass = misclass)
@@ -245,9 +242,7 @@ rrisk.BayesPEM <- function(x, n, k,
   model <- model_function(prior.pi, prior.se, prior.sp)
 
   startburnin = burn - 1000 #burn - adapt
-  #-----------------------------------------------------------------------------
-  # run model
-  #-----------------------------------------------------------------------------
+  ##### run model#####
   jags_res <- autorun.jags(
     model    = model,
     data     = jags_data,
@@ -261,9 +256,7 @@ rrisk.BayesPEM <- function(x, n, k,
     plots    = FALSE
   )
   
-  #-----------------------------------------------------------------------------
-  # check diagnostic plots for convergence
-  #-----------------------------------------------------------------------------
+  ##### check diagnostic plots for convergence#####
   if(!simulation)
   { 
     convergence <- diagnostics(jags_res, plots)
@@ -279,9 +272,7 @@ rrisk.BayesPEM <- function(x, n, k,
       out@convergence <- convergence
   }
 
-  #-----------------------------------------------------------------------------
-  # output
-  #-----------------------------------------------------------------------------
+  ##### output#####
   out@convergence <- checkPSRF(jags_res)
   out@nodes <- jags_res$monitor
   out@model <- writeModelPEM(misclass)
@@ -296,6 +287,7 @@ return(out)
 
 
 ################################################################################
+##### rrisk.BayesZIP #####
 ################################################################################
 #' @description Zero-inflated Poisson data are count data with an excess number 
 #' of zeros. The ZIP model involves the Poisson parameter \code{lambda} and the 
@@ -411,19 +403,13 @@ rrisk.BayesZIP <-  function(data,
                             workdir = getwd(),
                             plots = FALSE)
   {
-    # -----------------------------------------------------------------------------
-    # check input arguments
-    # -----------------------------------------------------------------------------
+    #####check input arguments#####
     checkInputZIP(data, prior.lambda, prior.pi, chains, burn, thin, update, workdir, plots)
     
-    #-----------------------------------------------------------------------------
-    # create outlist
-    #-----------------------------------------------------------------------------
+    ##### create outlist#####
     out <- new("bayesmodelClass")
     
-    #-----------------------------------------------------------------------------
-    # a priori model definitions
-    #-----------------------------------------------------------------------------
+    ##### a priori model definitions#####
     #data
     jags_data <- list(y = data, n = length(data))
     
@@ -435,9 +421,8 @@ rrisk.BayesZIP <-  function(data,
     model <- model_function(pi_prior = prior.pi, lambda_prior = prior.lambda)
     
     startburnin = burn - 1000 #burn - adapt
-    #-----------------------------------------------------------------------------
-    # run model
-    #-----------------------------------------------------------------------------
+    
+    ##### run model#####
     jags_res <- autorun.jags(
       model    = model,
       data     = jags_data,
@@ -451,9 +436,7 @@ rrisk.BayesZIP <-  function(data,
       plots    = FALSE
     )
     
-    #-----------------------------------------------------------------------------
-    # check diagnostic plots for convergence
-    #-----------------------------------------------------------------------------
+    ##### check diagnostic plots for convergence#####
     
     if(!simulation)
     { 
@@ -470,9 +453,7 @@ rrisk.BayesZIP <-  function(data,
       out@convergence <- convergence
     }
     
-    #-----------------------------------------------------------------------------
-    # output
-    #-----------------------------------------------------------------------------
+    ##### output#####
     out@convergence <- checkPSRF(jags_res)
     out@nodes <- jags_res$monitor
     out@model <- writeModelZIP()
@@ -487,6 +468,7 @@ rrisk.BayesZIP <-  function(data,
 
 
 ################################################################################
+##### rrisk.BayesZINB #####
 ################################################################################
 
 #' @description Zero-inflated Negative-Binomial data are count data with an excess number of zeros. The
@@ -615,14 +597,10 @@ rrisk.BayesZINB <-  function(data,
   # -----------------------------------------------------------------------------
   checkInputZINB(data, prior.pi, chains, burn, thin, update, workdir, plots)
   
- #-----------------------------------------------------------------------------
-  # create outlist
-  #-----------------------------------------------------------------------------
+ ##### create outlist #####
   out <- new("bayesmodelClass")
   
-  #-----------------------------------------------------------------------------
-  # a priori model definitions
-  #-----------------------------------------------------------------------------
+  ##### a priori model definitions #####
   #data
   jags_data <- list(y = data, n = length(data))
   
@@ -634,9 +612,8 @@ rrisk.BayesZINB <-  function(data,
   model <- model_function(pi_prior = prior.pi)
 
   startburnin = burn - 1000 #burn - adapt
-  #-----------------------------------------------------------------------------
-  # run model
-  #-----------------------------------------------------------------------------
+  
+  ##### run model #####
   jags_res <- autorun.jags(
     model    = model,
     data     = jags_data,
@@ -644,15 +621,13 @@ rrisk.BayesZINB <-  function(data,
     inits    = inits,
     startburnin = startburnin,
     startsample = update,
-    max.time = "3m",
+    max.time = "30secs",
     method   = "rjags",
     thin     = thin,
     plots    = FALSE
   )
   
-  #-----------------------------------------------------------------------------
-  # check diagnostic plots for convergence
-  #-----------------------------------------------------------------------------
+  ##### check diagnostic plots for convergence #####
   if(!simulation)
   { 
     convergence <- diagnostics(jags_res, plots)
@@ -668,9 +643,7 @@ rrisk.BayesZINB <-  function(data,
     out@convergence <- convergence
   }
   
-  #-----------------------------------------------------------------------------
-  # output
-  #-----------------------------------------------------------------------------
+  ##### output #####
   out@convergence <- checkPSRF(jags_res)
   out@nodes <- jags_res$monitor
   out@model <- writeModelZINB()
