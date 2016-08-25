@@ -1,4 +1,7 @@
 #library(rriskBayes2)
+
+# test risk.BayesPEM ------------------------------------------------------
+
 test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
   switch(misclass,
          "individual"={
@@ -92,8 +95,7 @@ test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
                             misclass = misclass, 
                             chains=3,
                             burn = 4000,
-                            thin = 1,
-                            update = 10000,
+                            thin = 3,
                             workdir=getwd(),
                             plot=TRUE
                             )
@@ -103,23 +105,22 @@ test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
                      prior.sp = sp_prior,
                      prior.pi = pi_prior,
                      chains=3,#
-                     burn = 4000,
-                     thin = 1,
-                     update = 10000
+                     burn = 4000
                      )
   
   return(resPEM)
 }
 
 
-################################################################################
-################################################################################
-# generate ZIP data
-# Beispieldaten generieren:
-
+# test rrisk.BayesZIP -----------------------------------------------------
 
 test_rrisk.BayesZIP <- function(gui=FALSE) {
-  set.seed(42)
+  
+  
+  # generate ZIP data
+  # Beispieldaten generieren:
+  
+  #set.seed(42)
   
   n_true_neg <- 200
   n_true_pos <- 300
@@ -163,8 +164,9 @@ test_rrisk.BayesZIP <- function(gui=FALSE) {
 }
 
 
+# test rrisk.BayesZINB ----------------------------------------------------
+
 test_rrisk.BayesZINB <- function(gui = FALSE){
-  # Beispieldaten generieren:
   #set.seed(42)
   
   n_true_neg <- 60
@@ -191,7 +193,7 @@ test_rrisk.BayesZINB <- function(gui = FALSE){
                                chains = 3,
                                burn = 4000,
                                thin = 1,
-                               update = 10000,
+                               update = 4123,
                                workdir = getwd(),
                                plots = TRUE
     )

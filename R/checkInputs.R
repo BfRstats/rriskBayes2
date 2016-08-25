@@ -1,9 +1,5 @@
-################################################################################
-################################################################################
 
-#-----------------------------------------------------------------------------
-# common input for all models
-#-----------------------------------------------------------------------------
+# common input for all models ---------------------------------------------
 
 checkMCparams <- function(chains, burn, thin, update){
   if( chains > 6)
@@ -42,14 +38,10 @@ checkEnvironParams <- function(workdir, plots){
   }
 }
 
-################################################################################
-################################################################################
-#-----------------------------------------------------------------------------
-# input for specific models
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-# input for rrisk.BayesPEM
-#-----------------------------------------------------------------------------
+
+# input for specific models -----------------------------------------------
+
+# input for rrisk.BayesPEM ------------------------------------------------
 
 checkInputPEM <- function(x, n, k,
                           prior.pi, prior.se, prior.sp,
@@ -75,9 +67,9 @@ checkInputPEM <- function(x, n, k,
          call.=FALSE)
   }
   
-  #-----------------------------------------------------------------------------
-  # plausibility check on priors
-  #-----------------------------------------------------------------------------
+ 
+  # plausibility check on priors ####
+ 
 
   if(missing(prior.pi) | missing(prior.se) | missing(prior.sp))
   { on.exit(return(invisible(NA)))
@@ -91,9 +83,9 @@ checkInputPEM <- function(x, n, k,
          and specificity should be strictly positive!",call.=FALSE)
   }
   
-  #-----------------------------------------------------------------------------
-  # plausibility check on method
-  #-----------------------------------------------------------------------------
+ 
+  # plausibility check on method ####
+ 
   
   if(!is.element(misclass,c("individual","individual-fix-sp", "individual-fix-se",
                             "individual-fix-se-sp", "pool", "pool-fix-se", 
@@ -130,12 +122,8 @@ checkInputPEM <- function(x, n, k,
 
 }
 
-################################################################################
-################################################################################
 
-#-----------------------------------------------------------------------------
-# input for rrisk.BayesZIP
-#-----------------------------------------------------------------------------
+# input for rrisk.BayesZIP ------------------------------------------------
 
 checkInputZIP <- function(data,
                           prior.lambda, prior.pi,
@@ -166,9 +154,9 @@ checkInputZIP <- function(data,
          of length 2!", call. = FALSE)
   }
  
-  #-----------------------------------------------------------------------------
-  # plausibility check on data
-  #-----------------------------------------------------------------------------
+ 
+  # plausibility check on data ####
+ 
   if (length(data) < 10)
   { on.exit(return(invisible(NA)))
     stop("Data set too small for this purpose!", call. = FALSE)
@@ -184,9 +172,9 @@ checkInputZIP <- function(data,
     stop("Data set contains non-integer values!", call. = FALSE)
   }
   
-  #-----------------------------------------------------------------------------
-  # plausibility check on priors
-  #-----------------------------------------------------------------------------
+ 
+  # plausibility check on priors ####
+ 
   if (min(prior.pi) <= 0)
   { on.exit(return(invisible(NA)))
     stop("Parameters of the beta prior distribution for prevalence should not be
@@ -200,12 +188,8 @@ checkInputZIP <- function(data,
   }
 }
 
-################################################################################
-################################################################################
+# input for rrisk.BayesZINB -----------------------------------------------
 
-#-----------------------------------------------------------------------------
-# input for rrisk.BayesZINB
-#-----------------------------------------------------------------------------
 checkInputZINB <-  function(data,
                             prior.pi,
                             chains, burn, thin, update,
@@ -233,9 +217,9 @@ checkInputZINB <-  function(data,
     stop("INVALID INPUT, 'prior.pi' should be of length 2!", call. = FALSE)
   }
   
-  #-----------------------------------------------------------------------------
-  # plausibility check on data
-  #-----------------------------------------------------------------------------
+ 
+  # plausibility check on data ####
+ 
   if (length(data) < 10)
   { on.exit(return(invisible(NA)))
     stop("Data set too small for this purpose!", call. = FALSE)
@@ -251,12 +235,14 @@ checkInputZINB <-  function(data,
     stop("Data set contains non-integer values!", call. = FALSE)
   }
   
-  #-----------------------------------------------------------------------------
-  # plausibility check on priors
-  #-----------------------------------------------------------------------------
+ 
+  # plausibility check on priors ####
+ 
   if (min(prior.pi) <= 0)
   { on.exit(return(invisible(NA)))
     stop("Parameters of the beta prior distribution for prevalence cannot be negative!", call. = FALSE)
   }
   
 }
+
+

@@ -1,5 +1,6 @@
-################################################################################
-################################################################################
+# bayesmodelClass ---------------------------------------------------------
+
+
 #' @description S4 class for displaying the output of the functions \code{rrisk.BayesPEM} and
 #' \code{rrisk.BayesZIP}.
 #'
@@ -42,7 +43,9 @@ setClass(Class="bayesmodelClass",
            update=NULL))
 
 
-################################################################################
+
+# methods show  -----------------------------------------------------------
+
 #' @description Show method for \code{\linkS4class{bayesmodelClass}}
 #'
 #' @name show-methods

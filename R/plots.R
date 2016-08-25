@@ -1,5 +1,6 @@
-################################################################################
-################################################################################
+
+# plotDiag ----------------------------------------------------------------
+
 #' @name plotDiag
 #' @aliases plotDiag
 #' @title Auxiliary function
@@ -42,8 +43,9 @@ plotDiag <- function(x, plotnumber = "all", ...){
 }
 
 
-################################################################################
-################################################################################
+# diagnostics -------------------------------------------------------------
+
+
 #' @description This function provides a GUI for diagnostic plots to check convergence in Markov
 #' chain Monte-Carlo (MCMC) models provided by 
 #' \code{\link{rrisk.BayesZIP}} and \code{\link{rrisk.BayesPEM}}.
@@ -75,25 +77,24 @@ plotDiag <- function(x, plotnumber = "all", ...){
 
 diagnostics<-function(x, plots=FALSE)
 { 
-  #-----------------------------------------------------------------------------
   # what happends by pressing "not converged" button
-  #-----------------------------------------------------------------------------
   onNO<-function(...)
   {
     assign("output", value=FALSE, envir=tempEnvir)
     tkdestroy(diagPlotWindow)
   } # end of onNO()
-  #-----------------------------------------------------------------------------
+ 
+  
   # what happends by pressing "converged" button
-  #-----------------------------------------------------------------------------
+  
   onYES<-function(...)
   {
     assign("output", value=TRUE, envir=tempEnvir)
     tkdestroy(diagPlotWindow)
   } # end of onNO()
-  #-----------------------------------------------------------------------------
+  
   # what happends by pressing "next plot" button
-  #-----------------------------------------------------------------------------
+  
   onNext<-function(...)
   { plotNumber<-get("plotNumber",envir=tempEnvir)
   if(plotNumber==1){
@@ -112,9 +113,9 @@ diagnostics<-function(x, plots=FALSE)
   tkraise(diagPlotWindow)
   }  # end of onNext()
 
-  #-----------------------------------------------------------------------------
+  
   # display diagnostic plots in separate windows
-  #-----------------------------------------------------------------------------
+  
   if(plots)
   {
     X11();plotDiag(x, plotnumber=1)
@@ -122,9 +123,9 @@ diagnostics<-function(x, plots=FALSE)
     X11();plotDiag(x, plotnumber=3)
   }
   
-  #-----------------------------------------------------------------------------
+  
   # define help variables for output
-  #-----------------------------------------------------------------------------
+  
   assign("tempEnvir",value=new.env(),envir=.GlobalEnv)
   assign("output",value=FALSE,envir=tempEnvir)
   assign("plotNumber",value=1,envir=tempEnvir)
@@ -169,9 +170,10 @@ diagnostics<-function(x, plots=FALSE)
   
   tkfocus(diagPlotWindow)
   tkwait.window(diagPlotWindow)
-  #-----------------------------------------------------------------------------
+  
+  
   # output
-  #-----------------------------------------------------------------------------
+  
   return(get("output",envir=tempEnvir))
 } #  end of function diagnostics()
 

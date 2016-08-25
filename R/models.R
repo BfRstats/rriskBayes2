@@ -1,7 +1,5 @@
-################################################################################
-#####rrisk.BayesPEM#####
-################################################################################
 
+# rrisk.BayesPEM ----------------------------------------------------------
 #' @description Bayesian PEM models provide the posterior distribution for the 
 #' true prevalence (\code{pi}), diagnostic sensitivity (\code{se}) and 
 #' specificity (\code{sp}) for a given empirical prevalence estimate using 
@@ -118,7 +116,7 @@
 #' size in application study (\code{k=1})
 #' @param k scalar value for number of individual samples physically combined 
 #' into one pool;
-#' set \code{k>1} for pooled sampling and \code{k=1} for individual sampling
+#' set \code{k>1} for pooled sampling and \code{k=1} for individual sampling. (default 1). 
 #' @param simulation not used any longer
 #' @param prior.pi numeric vector containing parameters of a beta distribution 
 #' as prior for prevalence \code{pi}, e.g. \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}
@@ -207,11 +205,11 @@
 #' prior.pi = pi_prior, prior.se = se_prior, prior.sp = sp_prior, 
 #' misclass = misclass, plots=TRUE)
 #' }
-rrisk.BayesPEM <- function(x, n, k,
+rrisk.BayesPEM <- function(x, n, k = 1,
                            prior.pi = c(1, 1), prior.se, prior.sp,
                            simulation = FALSE,
                            misclass = "pool",
-                           chains = 3, burn = 4000, thin = 1, update = 10000,
+                           chains = 3, burn = 4000, thin = 1, update = 5000,
                            workdir = getwd(), plots = FALSE
                            )
 {
@@ -219,10 +217,10 @@ rrisk.BayesPEM <- function(x, n, k,
   checkInputPEM(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, thin, 
                 update, misclass, workdir, plots)
 
-  ##### create outlist#####
+  ##### create outlist #####
   out <- new("bayesmodelClass")
 
-  ##### a priori model definitions#####
+  ##### a priori model definitions #####
   #data
   if (misclass == "pool" | misclass == "pool-fix-se" | misclass == "pool-fix-sp" 
       | misclass == "pool-fix-se-sp")
@@ -242,7 +240,8 @@ rrisk.BayesPEM <- function(x, n, k,
   model <- model_function(prior.pi, prior.se, prior.sp)
 
   startburnin = burn - 1000 #burn - adapt
-  ##### run model#####
+  
+  ##### run model #####
   jags_res <- autorun.jags(
     model    = model,
     data     = jags_data,
@@ -256,7 +255,7 @@ rrisk.BayesPEM <- function(x, n, k,
     plots    = FALSE
   )
   
-  ##### check diagnostic plots for convergence#####
+  ##### check diagnostic plots for convergence #####
   if(!simulation)
   { 
     convergence <- diagnostics(jags_res, plots)
@@ -272,7 +271,7 @@ rrisk.BayesPEM <- function(x, n, k,
       out@convergence <- convergence
   }
 
-  ##### output#####
+  ##### output #####
   out@convergence <- checkPSRF(jags_res)
   out@nodes <- jags_res$monitor
   out@model <- writeModelPEM(misclass)
@@ -286,9 +285,8 @@ return(out)
 } # end of function rrisk.BayesPEM
 
 
-################################################################################
-##### rrisk.BayesZIP #####
-################################################################################
+# rrisk.BayesZIP ----------------------------------------------------------
+
 #' @description Zero-inflated Poisson data are count data with an excess number 
 #' of zeros. The ZIP model involves the Poisson parameter \code{lambda} and the 
 #' prevalence parameter \code{pi}.
@@ -399,17 +397,17 @@ rrisk.BayesZIP <-  function(data,
                             chains = 3,
                             burn = 4000,
                             thin = 1,
-                            update = 10000,
+                            update = 5000,
                             workdir = getwd(),
                             plots = FALSE)
   {
-    #####check input arguments#####
+    #####check input arguments #####
     checkInputZIP(data, prior.lambda, prior.pi, chains, burn, thin, update, workdir, plots)
     
-    ##### create outlist#####
+    ##### create outlist #####
     out <- new("bayesmodelClass")
     
-    ##### a priori model definitions#####
+    ##### a priori model definitions #####
     #data
     jags_data <- list(y = data, n = length(data))
     
@@ -422,7 +420,7 @@ rrisk.BayesZIP <-  function(data,
     
     startburnin = burn - 1000 #burn - adapt
     
-    ##### run model#####
+    ##### run model #####
     jags_res <- autorun.jags(
       model    = model,
       data     = jags_data,
@@ -436,7 +434,7 @@ rrisk.BayesZIP <-  function(data,
       plots    = FALSE
     )
     
-    ##### check diagnostic plots for convergence#####
+    ##### check diagnostic plots for convergence #####
     
     if(!simulation)
     { 
@@ -453,7 +451,7 @@ rrisk.BayesZIP <-  function(data,
       out@convergence <- convergence
     }
     
-    ##### output#####
+    ##### output #####
     out@convergence <- checkPSRF(jags_res)
     out@nodes <- jags_res$monitor
     out@model <- writeModelZIP()
@@ -467,9 +465,7 @@ rrisk.BayesZIP <-  function(data,
   } # end of function rrisk.BayesZIP()
 
 
-################################################################################
-##### rrisk.BayesZINB #####
-################################################################################
+# rrisk.BayesZINB ---------------------------------------------------------
 
 #' @description Zero-inflated Negative-Binomial data are count data with an excess number of zeros. The
 #' ZINB model involves the prevalence parameter \code{pi}. The negative binomial distribution can be seen
@@ -536,9 +532,9 @@ rrisk.BayesZIP <-  function(data,
 #' @examples
 #' \donttest{
 #'------------------------------------------
-# Example of a ZINB model (compare with rrisk.BayesZIP)
-#--------------------------------------------
-# generate ZINB data
+#' Example of a ZINB model (compare with rrisk.BayesZIP)
+#'--------------------------------------------
+#' generate ZINB data
 #' pi <- 0.1
 #' n <- 200
 #' zinb.data <- rep(0,n)
@@ -549,8 +545,8 @@ rrisk.BayesZIP <-  function(data,
 #'  burn = 100,update = 4000)
 #' resZINB
 #'------------------------------------------
-# Example of a ZINB model 
-#--------------------------------------------
+#' Example of a ZINB model 
+#'--------------------------------------------
 #'set.seed(42)
 
 #'n_true_neg <- 60
@@ -587,15 +583,13 @@ rrisk.BayesZINB <-  function(data,
                              chains = 3,
                              burn = 4000,
                              thin = 1,
-                             update = 10000,
+                             update = 5000,
                              workdir = getwd(),
                              plots = FALSE)
   {
     
-  # -----------------------------------------------------------------------------
-  # check input arguments
-  # -----------------------------------------------------------------------------
-  checkInputZINB(data, prior.pi, chains, burn, thin, update, workdir, plots)
+ ##### check input arguments #####
+ checkInputZINB(data, prior.pi, chains, burn, thin, update, workdir, plots)
   
  ##### create outlist #####
   out <- new("bayesmodelClass")
