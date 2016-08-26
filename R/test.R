@@ -120,8 +120,6 @@ test_rrisk.BayesZIP <- function(gui=FALSE) {
   # generate ZIP data
   # Beispieldaten generieren:
   
-  #set.seed(42)
-  
   n_true_neg <- 200
   n_true_pos <- 300
   n <- n_true_pos + n_true_neg
@@ -195,7 +193,7 @@ test_rrisk.BayesZINB <- function(gui = FALSE){
                                thin = 1,
                                update = 4123,
                                workdir = getwd(),
-                               plots = TRUE
+                               plots = FALSE
     )
   
   return(resZINB)
