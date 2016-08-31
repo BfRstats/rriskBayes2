@@ -10,15 +10,21 @@ onNextplot <- function(envir, nvars, ...){
   if(plotNumber <= nvars){
     imgPlot1 <- get(paste0("imgPlot", plotNumber), envir=envir)
     tkpack.forget(imgPlot1)
-    assign("plotNumber",value=plotNumber+1,envir=envir)
-    imgPlot2 <- get(paste0("imgPlot",plotNumber+1), envir=envir)
-    tkpack(imgPlot2, side="top")
+    if(nvars == 1){
+      tkpack(imgPlot1, side = "top")
+      print("only one plot to show. please press converged or not converged!")
+    }else{
+      assign("plotNumber", value=plotNumber+1, envir=envir)
+      imgPlot2 <- get(paste0("imgPlot", plotNumber + 1), envir=envir)
+      tkpack(imgPlot2, side="top")
+    }
+    
   }else if(plotNumber == nvars + 1){       
     imgPlot3 <- get(paste0("imgPlot", plotNumber), envir=envir)
     tkpack.forget(imgPlot3)
-    assign("plotNumber",value=1,envir=envir)
-    imgPlot1 <- get("imgPlot1", envir=envir)
-    tkpack(imgPlot1, side="top")
+    assign("plotNumber",value = 1, envir = envir)
+    imgPlot1 <- get("imgPlot1", envir = envir)
+    tkpack(imgPlot1, side = "top")
   }
 } 
 

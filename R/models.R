@@ -108,8 +108,9 @@
 #' @title Bayesian Prevalence estimation under misclassification (PEM)
 #' @usage rrisk.BayesPEM(x, n, k, simulation = FALSE, 
 #'  prior.pi = c(1, 1), prior.se, prior.sp,
-#'  misclass = "pool", chains = 3, burn = 1000, thin = 1, update = 10000,
-#'  workdir = getwd(), plots = FALSE)
+#'  misclass = "pool", chains = 3, burn = 4000, 
+#'  thin = 1, update = 5000, 
+#'  max.time = '15minutes', plots = FALSE)
 #' @param x scalar value for number of pools (\code{k>1}) or individual outcomes 
 #' (\code{k=1}) with positive test result
 #' @param n scalar value for number of pools tested (\code{k>1}) or the sample 
@@ -119,12 +120,12 @@
 #' set \code{k>1} for pooled sampling and \code{k=1} for individual sampling. (default 1). 
 #' @param simulation not used any longer
 #' @param prior.pi numeric vector containing parameters of a beta distribution 
-#' as prior for prevalence \code{pi}, e.g. \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}
+#' as prior for prevalence \code{pi}, e.g. \code{pi ~ prior.pi(*,*)=beta(*,*)}
 #' @param prior.se numeric vector containing parameters of a beta distribution 
-#' as prior for sensitivity \code{se}, e.g. \code{se} ~ \code{prior.se(*,*)=beta(*,*)}. 
+#' as prior for sensitivity \code{se}, e.g. \code{se ~ prior.se(*,*)=beta(*,*)}. 
 #' For fixed sensitivity scalar value.
 #' @param prior.sp numeric vector containing parameters of a beta distribution 
-#' as prior for specificity \code{sp}, e.g. \code{sp} ~ \code{prior.sp(*,*)=beta(*,*)}. 
+#' as prior for specificity \code{sp}, e.g. \code{sp ~ prior.sp(*,*)=beta(*,*)}. 
 #' For fixed specifity scalar value.
 #' @param misclass character with legal character entries \code{individual}, 
 #' \code{individual-fix-se}, \code{individual-fix-sp}, \code{individual-fix-se-sp}, 
@@ -138,8 +139,7 @@
 #' Setting thin > 1 can help to reduce the autocorrelation in the sample.
 #' @param update positive single numeric value, length of update iterations for 
 #' estimation (default 10000)
-#' @param workdir character string giving working directory to store temporary 
-#' data (default \code{getwd()})
+#' @param max.time the maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags})
 #' @param plots logical, if \code{TRUE} the diagnostic plots will be displayed
 #' @return The function \code{rrisk.BayesPEM} returns an instance of the 
 #' \code{\linkS4class{bayesmodelClass}} class containing following informations
@@ -161,7 +161,7 @@
 #' @references Greiner, M., Belgoroski, N., NN (2011). Estimating prevalence 
 #' using diagnostic data with pooled samples: R function \code{rrisk.BayesPEM}. 
 #' J.Stat.Software (in preparation).
-#' @references Cowling, D.W., I.A. Gardner and W.O. Johnson (1999). Comparison 
+#' @references Cowling, D.W., Gardner, I.A. and Johnson W.O. (1999). Comparison 
 #' of methods for estimation of individual-level prevalence based on pooled 
 #' samples, Prev.Vet.Med. 39: 211-225.
 #' \cr
@@ -210,12 +210,13 @@ rrisk.BayesPEM <- function(x, n, k = 1,
                            simulation = FALSE,
                            misclass = "pool",
                            chains = 3, burn = 4000, thin = 1, update = 5000,
-                           workdir = getwd(), plots = FALSE
+                           max.time = '15minutes',
+                           plots = FALSE
                            )
 {
   ##### check input arguments #####
   checkInputPEM(x, n, k, prior.pi, prior.se, prior.sp, chains, burn, thin, 
-                update, misclass, workdir, plots)
+                update, misclass, plots)
 
   ##### create outlist #####
   out <- new("bayesmodelClass")
@@ -249,7 +250,7 @@ rrisk.BayesPEM <- function(x, n, k = 1,
     inits    = inits,
     startburnin = startburnin,
     startsample = update,
-    max.time = "5secs",
+    max.time = max.time,
     method   = "rjags",
     thin     = thin,
     plots    = FALSE
@@ -318,8 +319,10 @@ return(out)
 #' @name rrisk.BayesZIP
 #' @aliases rrisk.BayesZIP
 #' @title Bayes estimation of a zero inflated Poisson (ZIP) model
-#' @usage rrisk.BayesZIP(data, prior.lambda=c(1,10), prior.pi=c(0.8,1), simulation=FALSE,
-#'  chains=3, burn=1000, thin=1, update=10000, workdir=getwd(), plots=FALSE)
+#' @usage rrisk.BayesZIP(data, prior.lambda = c(1,10), prior.pi = c(0.8, 1), 
+#'  simulation = FALSE, chains = 3, burn = 4000, 
+#'  thin = 1, update = 5000, 
+#'  max.time = '15minutes', plots = FALSE)
 #' @param data matrix, data frame or data set with positive integers, including 
 #' zeros and of the minimal length 10
 #' @param prior.lambda numeric vector containing minimum and maximum of a uniform
@@ -340,8 +343,7 @@ return(out)
 #' Setting \code{thin > 1} can help to reduce the autocorrelation in the sample.
 #' @param update positive single numeric value, length of update iterations for 
 #' estimation (default 10000)
-#' @param workdir character string giving working directory to store temporary 
-#' data (default \code{getwd()})
+#' #' @param max.time the maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags})
 #' @param plots logical, if \code{TRUE} the diagnostic plots will be displayed 
 #' in separate windows 
 #' @return The function \code{rrisk.BayesZIP} returns an instance of the 
@@ -363,9 +365,9 @@ return(out)
 # @seealso nothing...
 #' @keywords manip
 #' @export
-#' @references Bohning, D., E. Dietz, P. Schlattman, L. Mendonca, and U. Kirchner (1999). 
+#' @references Bohning, D., Dietz, E., Schlattman, P., Mendonca,  L. and  Kirchner, U. (1999). 
 #' The zero-inflated Poisson model and the decayed, missing and filled teeth index in 
-#' dental epidemiology. Journal of the Royal Statistical Society, Series A 162, 195-209.
+#' dental epidemiology. Journal of the Royal Statistical Society, Series A 162:195-209.
 #' @examples
 #' \donttest{
 #' #------------------------------------------
@@ -379,8 +381,12 @@ return(out)
 #' zip.data[sample(1:n,n*pi,replace=FALSE)]<-rpois(n*pi,lambda=lambda)
 #'
 #' # estimate using Bayes model for zero inflated data
-#' resZIP<-rrisk.BayesZIP(data=zip.data, prior.lambda=c(0,100),prior.pi=c(1,1),
-#'  burn=100,update=4000)
+#' resZIP <- rrisk.BayesZIP(data = zip.data, 
+#' prior.lambda = c(0,100), 
+#' prior.pi = c(1,1),
+#' burn = 4000, 
+#' max.time = '40seconds',
+#' update = 4000)
 #' resZIP
 #'
 #' # compare with naive results ignoring ZIP model
@@ -398,11 +404,11 @@ rrisk.BayesZIP <-  function(data,
                             burn = 4000,
                             thin = 1,
                             update = 5000,
-                            workdir = getwd(),
+                            max.time = '15minutes',
                             plots = FALSE)
   {
     #####check input arguments #####
-    checkInputZIP(data, prior.lambda, prior.pi, chains, burn, thin, update, workdir, plots)
+    checkInputZIP(data, prior.lambda, prior.pi, chains, burn, thin, update, plots)
     
     ##### create outlist #####
     out <- new("bayesmodelClass")
@@ -428,7 +434,7 @@ rrisk.BayesZIP <-  function(data,
       inits    = inits,
       startburnin = startburnin,
       startsample = update,
-      max.time = "3m",
+      max.time = max.time,
       method   = "rjags",
       thin     = thin,
       plots    = FALSE
@@ -500,7 +506,9 @@ rrisk.BayesZIP <-  function(data,
 #' @name rrisk.BayesZINB
 #' @aliases rrisk.BayesZINB
 #' @title Bayes estimation of a zero inflated negative binomial (ZINB) (also referred to as 'gamma-poisson') model
-#' @usage rrisk.BayesZINB(data, prior.pi = c(0.8, 1), simulation = FALSE, chains = 3, burn = 1000, thin = 1, update = 10000, workdir = getwd(), plots = FALSE)
+#' @usage rrisk.BayesZINB(data, prior.pi = c(0.8, 1), simulation = FALSE, chains = 3, burn = 4000,
+#'  thin = 1, update = 5000,
+#'   max.time = '15minutes', plots = FALSE)
 #' @param data matrix, data frame or data set with positive integers, including zeros and of the minimal length 10
 #' @param prior.pi numeric vector containing parameters of a beta distribution
 #' describing prior knowledge about prevalence (proportion of contaminated samples), e.g. \cr \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}
@@ -512,7 +520,7 @@ rrisk.BayesZIP <-  function(data,
 #'        inference, where k is the value of thin. Setting \code{thin > 1} can help to reduce the autocorrelation
 #'        in the sample.
 #' @param update positive single numeric value, length of update iterations for estimation (default 10000)
-#' @param workdir character string giving working directory to store temporary data (default \code{getwd()})
+#' @param max.time the maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags})
 #' @param plots logical, if \code{TRUE} the diagnostic plots will be displayed in separate windows 
 #' @return The function \code{rrisk.BayesZIP} returns an instance of the \code{\linkS4class{bayesmodelClass}}
 #' class containing following informations
@@ -528,7 +536,7 @@ rrisk.BayesZIP <-  function(data,
 #' see the package \pkg{BRugs}, see also \pkg{zicounts}.
 # @seealso nothing...
 #' @export
-#' @references
+#' @references Lunn, D. et al. (2012). The BUGS book: A practical introduction to Bayesian analysis. CRC press. p.353, 117
 #' @examples
 #' \donttest{
 #'------------------------------------------
@@ -541,8 +549,12 @@ rrisk.BayesZIP <-  function(data,
 #' zinb.data[sample(1:n, n*pi, replace = FALSE)] <- rpois(n*pi, lambda = 4)
 #'
 #' # estimate using Bayes model for zero inflated data
-#' resZINB <- rrisk.BayesZINB(data = zinb.data, prior.pi = c(1,1),
-#'  burn = 100,update = 4000)
+#' resZINB <- rrisk.BayesZINB(data = zinb.data, 
+#' prior.pi = c(1,1),
+#'  burn = 100, 
+#'  update = 4000,
+#'  max.time = '40seconds',
+#'  )
 #' resZINB
 #'------------------------------------------
 #' Example of a ZINB model 
@@ -571,8 +583,8 @@ rrisk.BayesZIP <-  function(data,
 #'                             chains = 3,
 #'                             burn = 4000,
 #'                             thin = 1,
+#'                             max.time = '60seconds',
 #'                             update = 10000,
-#'                             workdir = getwd(),
 #'                             plots = TRUE
 #'                             )
 #' }
@@ -584,12 +596,12 @@ rrisk.BayesZINB <-  function(data,
                              burn = 4000,
                              thin = 1,
                              update = 5000,
-                             workdir = getwd(),
+                             max.time = '15minutes',
                              plots = FALSE)
   {
     
  ##### check input arguments #####
- checkInputZINB(data, prior.pi, chains, burn, thin, update, workdir, plots)
+ checkInputZINB(data, prior.pi, chains, burn, thin, update, plots)
   
  ##### create outlist #####
   out <- new("bayesmodelClass")
@@ -615,7 +627,7 @@ rrisk.BayesZINB <-  function(data,
     inits    = inits,
     startburnin = startburnin,
     startsample = update,
-    max.time = "30secs",
+    max.time = max.time,
     method   = "rjags",
     thin     = thin,
     plots    = FALSE

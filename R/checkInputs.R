@@ -21,15 +21,7 @@ checkMCparams <- function(chains, burn, thin, update){
 
 }
 
-checkEnvironParams <- function(workdir, plots){
-  
-  try.setwd<-try(setwd(workdir),silent=TRUE)
-  if(inherits(try.setwd, "try-error"))
-  { on.exit(return(invisible(NA)))
-    error.mess<-paste("INVALID INPUT, the working directory could not be found!
-                      Your input is \n",workdir)
-    stop(error.mess,call.=FALSE)
-  }
+checkEnvironParams <- function(plots){
   
   if(!is.logical(plots))
   { on.exit(return(invisible(NA)))
@@ -46,12 +38,11 @@ checkEnvironParams <- function(workdir, plots){
 checkInputPEM <- function(x, n, k,
                           prior.pi, prior.se, prior.sp,
                           chains, burn, thin, update,
-                          misclass,
-                          workdir, plots
+                          misclass, plots
                           )
 {
   checkMCparams(chains, burn, thin, update)
-  checkEnvironParams(workdir, plots)
+  checkEnvironParams(plots)
   
   
   if (missing(x) | missing(n))
@@ -128,12 +119,12 @@ checkInputPEM <- function(x, n, k,
 checkInputZIP <- function(data,
                           prior.lambda, prior.pi,
                           chains, burn, thin, update,
-                          workdir, plots
+                          plots
                           )
 {
   
   checkMCparams(chains, burn, thin, update)
-  checkEnvironParams(workdir, plots)
+  checkEnvironParams(plots)
   
   if (missing(data) | missing(prior.lambda) | missing(prior.pi))
   { on.exit(return(invisible(NA)))
@@ -193,11 +184,11 @@ checkInputZIP <- function(data,
 checkInputZINB <-  function(data,
                             prior.pi,
                             chains, burn, thin, update,
-                            workdir, plots
+                            plots
                             )
 {
   checkMCparams(chains, burn, thin, update)
-  checkEnvironParams(workdir, plots)
+  checkEnvironParams(plots)
   
   if (missing(data) | missing(prior.pi))
   { on.exit(return(invisible(NA)))

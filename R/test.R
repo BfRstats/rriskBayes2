@@ -96,7 +96,6 @@ test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
                             chains=3,
                             burn = 4000,
                             thin = 3,
-                            workdir=getwd(),
                             plot=TRUE
                             )
   else
@@ -147,7 +146,6 @@ test_rrisk.BayesZIP <- function(gui=FALSE) {
                            burn = 4000,
                            thin = 1,
                            update = 10000,
-                           workdir = getwd(),
                            plots = TRUE
   )
   else
@@ -192,7 +190,6 @@ test_rrisk.BayesZINB <- function(gui = FALSE){
                                burn = 4000,
                                thin = 1,
                                update = 4123,
-                               workdir = getwd(),
                                plots = FALSE
     )
   
