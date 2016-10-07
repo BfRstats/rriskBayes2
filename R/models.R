@@ -129,7 +129,10 @@
 #' For fixed specifity scalar value.
 #' @param misclass character with legal character entries \code{individual}, 
 #' \code{individual-fix-se}, \code{individual-fix-sp}, \code{individual-fix-se-sp}, 
-#' \code{pool}, \code{pool-fix-se}, \code{pool-fix-sp} or \code{pool-fix-se-sp}, .
+#' \code{pool}, \code{pool-fix-se}, \code{pool-fix-sp} or \code{pool-fix-se-sp}.\\
+#' \code{fix-se}: fixed sensitivity\\
+#' \code{fix-sp}: fixed specifity\\
+#' \code{fix-se-sp}: fixed sensitivity and fixed specifity
 #' @param chains positive single numeric value, number of independent MCMC 
 #' chains (default 3)
 #' @param burn positive single numeric value, length of the burn-in period 
