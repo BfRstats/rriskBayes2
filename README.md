@@ -6,7 +6,7 @@ This packages provides a collection of functions for fitting Bayesian models (re
 The following Bayesian models are implemented in this package:
 
 * **PEM** - prevalence estimation under misclassification
-* **ZIP** - estimation of a zero inflated Poisson (ZIP) model
+* **ZIP** - estimation of a zero inflated Poisson model
 * **ZINB** - zero inflated negative binomial model
 
 ## Details
