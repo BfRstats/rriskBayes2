@@ -113,6 +113,7 @@ lambda.crude <- mean(zip.data)
 print(pi.crude)
 print(lambda.crude)
 resZIP1@results
+
 #------------------------------------------
 # Examples of GUI functions
 #------------------------------------------
