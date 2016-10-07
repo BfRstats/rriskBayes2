@@ -20,6 +20,7 @@ This package is a part of the rrisk project and contains functions for fitting B
 * Natalia Belgorodski (at the time STAT-UP Statistical Consulting)
 * Matthias Greiner matthias.greiner@bfr.bund.de (Federal Institute for Risk Assessment, Germany)
 * Alexander Engelhardt alexander.engelhardt@stat-up.com (STAT-UP Statistical Consulting)
+* Christina Yassouridis christina.yassouridis@stat-up.com (STAT-UP Statistical Consulting)
 * ...
 
 ## Examples
