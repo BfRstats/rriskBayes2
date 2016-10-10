@@ -38,27 +38,27 @@ onNextplot <- function(envir, nvars, ...){
 #' @title Bayes estimation of a zero inflated Poisson (ZIP) model
 #' @usage ZIPGUI(data=NULL, prior.lambda=c(1,10), prior.pi=c(0.8,1),
 #'  chains=3, burn=1000, update=10000, thin=1)
-#' @param data a vector of numeric data, containing zeros, and of minimal length 10.
-#' @param prior.lambda numeric vector containing minimum and maximum of a uniform
-#' distribution used as prior for the Poisson parameter \code{lambda}, e.g. \cr \code{lambda} \eqn{\sim} \code{prior.lambda(*,*)=unif(*,*)}
-#' @param prior.pi numeric vector containing parameters of a beta distribution
-#' describing prior knowledge about prevalence (proportion of contaminated samples), e.g. \cr \code{pi} \eqn{\sim} \code{prior.pi(*,*)=beta(*,*)}
-#' @param chains positive single numeric value, number of independent MCMC chains (default 3)
-#' @param burn positive single numeric value, length of the burn-in period (default 1000)
-#' @param update positive single numeric value, length of update iterations for estimation (default 10000)
-#' @param thin positive single numeric value (default 1). The samples from every kth iteration will be used for 
+#' @param data A vector of numeric data, containing zeros, and of minimal length 10.
+#' @param prior.lambda Numeric vector containing minimum and maximum of a uniform
+#' distribution used as prior for the Poisson parameter \code{lambda}, e.g. \cr \code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}.
+#' @param prior.pi Numeric vector containing parameters of a beta distribution
+#' describing prior knowledge about prevalence (proportion of contaminated samples), e.g., \cr \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.
+#' @param chains Positive single numeric value, number of independent MCMC chains (default 3).
+#' @param burn Positive single numeric value, length of the burn-in period (default 1000).
+#' @param update Positive single numeric value, length of update iterations for estimation (default 10000).
+#' @param thin Positive single numeric value (default 1). The samples from every kth iteration will be used for 
 #'        inference, where k is the value of thin. Setting \code{thin > 1} can help to reduce the autocorrelation
 #'        in the sample.
 #' @return The function \code{ZIPGUI} returns an instance of the \code{\linkS4class{bayesmodelClass}}
 #' class containing following information
-#' \item{\code{convergence}}{logical, whether the model has converged (assessed by the user)}
-#' \item{\code{results}}{data frame containing statitsics of the posterior distribution}
-#' \item{\code{jointpost}}{data frame giving the joint posterior probability distribution}
-#' \item{\code{nodes}}{names of the parameters jointly estimated by the Bayes model}
-#' \item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
-#' \item{\code{chains}}{number of independent MCMC chains}
-#' \item{\code{burn}}{length of burn-in period}
-#' \item{\code{update}}{length of update iterations for estimation}
+#' \item{\code{convergence}}{Logical, whether the model has converged (assessed by the user).}
+#' \item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
+#' \item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
+#' \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
+#' \item{\code{model}}{Model in BRugs/Winbugs syntax as a character string.}
+#' \item{\code{chains}}{Number of independent MCMC chains.}
+#' \item{\code{burn}}{Length of burn-in period.}
+#' \item{\code{update}}{Length of update iterations for estimation.}
 #' @note The convergence of the model will be entered by the user after the simulation process.
 #' @seealso \code{\link{rrisk.BayesZIP}}
 #' @keywords manip
@@ -272,28 +272,28 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
 #' @title GUI for Bayesian Prevalence estimation under misclassification (PEM)
 #' @usage PEMGUI(x=20, n=20, k=10, prior.pi=c(1,19), prior.se=c(1,1),
 #'  prior.sp=c(1,1), chains=3, burn=1000, update=10000, thin=1)
-#' @param x scalar value for number of pools (\code{k>1}) or single outcomes (\code{k=1}) with positive test result
-#' @param n scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k=1})
-#' @param k scalar value for number of individual samples physically combined into one pool
-#' @param prior.pi numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g. \code{pi} \eqn{\sim} \code{prior.pi(*,*)=beta(*,*)}
-#' @param prior.se numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} \eqn{\sim} \code{prior.se(*,*)=beta(*,*)}
-#' @param prior.sp numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} \eqn{\sim} \code{prior.sp(*,*)=beta(*,*)}
-#' @param chains positive single numeric value, number of independent MCMC chains (default 3)
-#' @param burn positive single numeric value, length of the burn-in period (default 1000)
-#' @param update positive single numeric value, length of update iterations for estimation (default 10000)
-#' @param thin positive single numeric value (default 1). The samples from every kth iteration will be used for 
+#' @param x Scalar value for number of pools (\code{k>1}) or single outcomes (\code{k=1}) with positive test result.
+#' @param n Scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k=1}).
+#' @param k Scalar value for number of individual samples physically combined into one pool.
+#' @param prior.pi Numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g. \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.
+#' @param prior.se Numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} ~ \code{prior.se(*,*)=beta(*,*)}.
+#' @param prior.sp Numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} ~ \code{prior.sp(*,*) = beta(*,*)}.
+#' @param chains Positive single numeric value, number of independent MCMC chains (default 3).
+#' @param burn Positive single numeric value, length of the burn-in period (default 1000).
+#' @param update positive single numeric value, length of update iterations for estimation (default 10000).
+#' @param thin Positive single numeric value (default 1). The samples from every kth iteration will be used for 
 #'        inference, where k is the value of thin. Setting \code{thin > 1} can help to reduce the autocorrelation
 #'        in the sample.
 #' @return The function \code{PEMGUI} returns an instance of the \code{\linkS4class{bayesmodelClass}}
 #' class containing following information
-#' \item{\code{convergence}}{logical, whether the model has converged (assessed by the user)}
-#' \item{\code{results}}{data frame containing statitsics of the posterior distribution}
-#' \item{\code{jointpost}}{data frame giving the joint posterior probability distribution}
-#' \item{\code{nodes}}{names of the parameters jointly estimated by the Bayes model}
-#' \item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
-#' \item{\code{chains}}{number of independent MCMC chains}
-#' \item{\code{burn}}{length of burn-in period}
-#' \item{\code{update}}{length of update iterations for estimation}
+#' \item{\code{convergence}}{Logical, whether the model has converged (assessed by the user).}
+#' \item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
+#' \item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
+#' \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
+#' \item{\code{model}}{Model in BRugs/Winbugs syntax as a character string.}
+#' \item{\code{chains}}{Number of independent MCMC chains.}
+#' \item{\code{burn}}{Length of burn-in period.}
+#' \item{\code{update}}{Length of update iterations for estimation.}
 #' @note The convergence of the model is assessed by the user using diagnostic plots
 #' provided by the \pkg{BRugs} package.
 #' @seealso \code{\link{rrisk.BayesPEM}}
@@ -308,8 +308,8 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
 #' #------------------------------------------
 #' \donttest{mod <- PEMGUI()}
 
-PEMGUI <- function(x=20, n=20, k=1, prior.pi=c(1,1), prior.se=c(1,1),
-                   prior.sp=c(1,1), chains=3, burn=1000, update=10000, thin=1){
+PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
+                   prior.sp = c(1,1), chains = 3, burn = 1000, update = 10000, thin = 1){
   
   # GUIDiag: function for plotting the two diagnosis plots
   
@@ -332,33 +332,33 @@ PEMGUI <- function(x=20, n=20, k=1, prior.pi=c(1,1), prior.se=c(1,1),
     update. <-  as.numeric(tclvalue(tkget(updateEntry)))
     thin. <-  as.numeric(tclvalue(tkget(thinEntry)))
     
-    mod <- try(rrisk.BayesPEM(x=x., n=n., k=k., prior.pi=c(prior.pi.l., prior.pi.r.), 
-                              prior.se=c(prior.se.l., prior.se.r.), prior.sp=c(prior.sp.l., prior.sp.r.),
-                              chains=chains., misclass="pool",update=update., burn=burn.,thin=thin.))
+    mod <- try(rrisk.BayesPEM(x = x., n = n., k = k., prior.pi = c(prior.pi.l., prior.pi.r.), 
+                              prior.se = c(prior.se.l., prior.se.r.), prior.sp = c(prior.sp.l., prior.sp.r.),
+                              chains = chains., misclass = "pool",update = update., burn = burn.,thin = thin.))
     
     if(inherits(mod, "try-error")){
       tkdestroy(bayesPEMWindow)
-      stop("Any error occured during fitting bayesian PEM model",call.=FALSE)
+      stop("Any error occured during fitting bayesian PEM model",call. = FALSE)
     } 
     
-    assign("mod", value=mod, envir=envirPEM)
+    assign("mod", value = mod, envir = envirPEM)
     
     vars <- mod@results$monitor
     nvars <- length(vars)
-    assign("nvars", nvars, envir=envirPEM)
+    assign("nvars", nvars, envir = envirPEM)
    
     #"trace", "ecdf", "histogram", "autocorr" plots
     k <- 1
     for(i in 1:nvars) {
-      assign(paste0("imgPlot", k), value = tkrplot(imgFrame,fun=function() plot(mod@results, vars=vars[k]), hscale=1.6, vscale=1.5), envir=envirPEM)
+      assign(paste0("imgPlot", k), value =   tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirPEM)
       k <- k+1
     }
     #crosscorrelation plot
-    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun=function() plot(mod@results, vars=vars, plot.type="crosscorr"), hscale=1.6, vscale=1.5), envir=envirPEM)
+    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars, plot.type = "crosscorr"), hscale = 1.6, vscale = 1.5), envir = envirPEM)
     
-    imgPlot1 <- get("imgPlot1", envir=envirPEM)
-    tkpack(imgPlot1, side="top")
-    assign("plotNumber",value=1,envir=envirPEM)
+    imgPlot1 <- get("imgPlot1", envir = envirPEM)
+    tkpack(imgPlot1, side = "top")
+    assign("plotNumber",value = 1,envir = envirPEM)
     tkraise(bayesPEMWindow)
   }
   
@@ -366,20 +366,20 @@ PEMGUI <- function(x=20, n=20, k=1, prior.pi=c(1,1), prior.se=c(1,1),
   # what happens by pressing RESET button
   
   onReset <- function(...){
-    tkconfigure(xEntry, text=tclVar(x))
-    tkconfigure(nEntry, text=tclVar(n))
-    tkconfigure(kEntry, text=tclVar(k))
-    tkconfigure(prior.pi.l, text=tclVar(prior.pi[1]))
-    tkconfigure(prior.pi.r, text=tclVar(prior.pi[2]))
-    tkconfigure(prior.se.l, text=tclVar(prior.se[1]))
-    tkconfigure(prior.se.r, text=tclVar(prior.se[2]))
-    tkconfigure(prior.sp.l, text=tclVar(prior.sp[1]))
-    tkconfigure(prior.sp.r, text=tclVar(prior.sp[2]))
-    #tkconfigure(misclassEntry, text=misclass)
-    tkconfigure(chainsEntry, text=tclVar(chains))
-    tkconfigure(burnEntry, text=tclVar(burn))
-    tkconfigure(updateEntry, text=tclVar(update))
-    tkconfigure(thinEntry, text=tclVar(thin))
+    tkconfigure(xEntry, text = tclVar(x))
+    tkconfigure(nEntry, text = tclVar(n))
+    tkconfigure(kEntry, text = tclVar(k))
+    tkconfigure(prior.pi.l, text = tclVar(prior.pi[1]))
+    tkconfigure(prior.pi.r, text = tclVar(prior.pi[2]))
+    tkconfigure(prior.se.l, text = tclVar(prior.se[1]))
+    tkconfigure(prior.se.r, text = tclVar(prior.se[2]))
+    tkconfigure(prior.sp.l, text = tclVar(prior.sp[1]))
+    tkconfigure(prior.sp.r, text = tclVar(prior.sp[2]))
+    #tkconfigure(misclassEntry, text = misclass)
+    tkconfigure(chainsEntry, text = tclVar(chains))
+    tkconfigure(burnEntry, text = tclVar(burn))
+    tkconfigure(updateEntry, text = tclVar(update))
+    tkconfigure(thinEntry, text = tclVar(thin))
   }
   
   
@@ -397,9 +397,9 @@ PEMGUI <- function(x=20, n=20, k=1, prior.pi=c(1,1), prior.se=c(1,1),
   # what happens by pressing CONVERGE button
   
   onConv <- function(...){
-    mod <- get("mod", envir=envirPEM)
+    mod <- get("mod", envir = envirPEM)
     mod@convergence <- TRUE
-    assign("mod", value=mod, envir=envirPEM)
+    assign("mod", value = mod, envir = envirPEM)
     tkdestroy(bayesPEMWindow)
   }
   
@@ -407,9 +407,9 @@ PEMGUI <- function(x=20, n=20, k=1, prior.pi=c(1,1), prior.se=c(1,1),
   # what happens by pressing NOT CONVERGE button
   
   onNotconv <- function(...){
-    mod <- get("mod", envir=envirPEM)
+    mod <- get("mod", envir = envirPEM)
     mod@convergence <- FALSE
-    assign("mod", value=mod, envir=envirPEM)
+    assign("mod", value = mod, envir = envirPEM)
     tkdestroy(bayesPEMWindow)
   }
   
@@ -418,7 +418,7 @@ PEMGUI <- function(x=20, n=20, k=1, prior.pi=c(1,1), prior.se=c(1,1),
    
   tclRequire("BWidget")
   
-  assign("envirPEM",value=new.env(),envir=.GlobalEnv)
+  assign("envirPEM",value = new.env(),envir = .GlobalEnv)
   
   mod <- new("bayesmodelClass")
   
@@ -433,7 +433,7 @@ PEMGUI <- function(x=20, n=20, k=1, prior.pi=c(1,1), prior.se=c(1,1),
   
   leftFrame <- tkframe(bayesPEMWindow)
   rightFrame <- tkframe(bayesPEMWindow)
-  imgFrame <- tkframe(rightFrame, height=600,width=200)
+  imgFrame <- tkframe(rightFrame, height = 600,width = 200)
   inputFrame <- tkframe(leftFrame)
   lButtonFrame <- tkframe(leftFrame)
   rButtonFrame <- tkframe(leftFrame)
@@ -441,57 +441,57 @@ PEMGUI <- function(x=20, n=20, k=1, prior.pi=c(1,1), prior.se=c(1,1),
   
   ## define input fields
   
-  xEntry <- tkentry(inputFrame, text=tclVar(x))
-  xLabel <- tklabel(inputFrame, text="x")
+  xEntry <- tkentry(inputFrame, text = tclVar(x))
+  xLabel <- tklabel(inputFrame, text = "x")
   
-  nEntry <- tkentry(inputFrame, text=tclVar(n))
-  nLabel <- tklabel(inputFrame, text="n")
+  nEntry <- tkentry(inputFrame, text = tclVar(n))
+  nLabel <- tklabel(inputFrame, text = "n")
   
-  kEntry <- tkentry(inputFrame, text=tclVar(k))
-  kLabel <- tklabel(inputFrame, text="k")
+  kEntry <- tkentry(inputFrame, text = tclVar(k))
+  kLabel <- tklabel(inputFrame, text = "k")
   
-  prior.pi.l <- tkentry(inputFrame, text=tclVar(prior.pi[1]), width=6)
-  prior.pi.lLabel <- tklabel(inputFrame, text="prior.pi (beta)")
-  prior.pi.r <- tkentry(inputFrame, text=tclVar(prior.pi[2]), width=6)
+  prior.pi.l <- tkentry(inputFrame, text = tclVar(prior.pi[1]), width = 6)
+  prior.pi.lLabel <- tklabel(inputFrame, text = "prior.pi (beta)")
+  prior.pi.r <- tkentry(inputFrame, text = tclVar(prior.pi[2]), width = 6)
   
-  prior.se.l <- tkentry(inputFrame, text=tclVar(prior.se[1]), width=6)
-  prior.se.lLabel <- tklabel(inputFrame, text="prior.se (beta)")
-  prior.se.r <- tkentry(inputFrame, text=tclVar(prior.se[2]), width=6)
+  prior.se.l <- tkentry(inputFrame, text = tclVar(prior.se[1]), width = 6)
+  prior.se.lLabel <- tklabel(inputFrame, text = "prior.se (beta)")
+  prior.se.r <- tkentry(inputFrame, text = tclVar(prior.se[2]), width = 6)
   
-  prior.sp.l <- tkentry(inputFrame, text=tclVar(prior.sp[1]), width=6)
-  prior.sp.lLabel <- tklabel(inputFrame, text="prior.sp (beta)")
-  prior.sp.r <- tkentry(inputFrame, text=tclVar(prior.sp[2]), width=6)
+  prior.sp.l <- tkentry(inputFrame, text = tclVar(prior.sp[1]), width = 6)
+  prior.sp.lLabel <- tklabel(inputFrame, text = "prior.sp (beta)")
+  prior.sp.r <- tkentry(inputFrame, text = tclVar(prior.sp[2]), width = 6)
   
-  #misclassLabel <- tklabel(inputFrame, text="misclass")
+  #misclassLabel <- tklabel(inputFrame, text = "misclass")
   #misclasses <- c("pool", "individual", "compare")
-  #misclassEntry <- tkwidget(inputFrame, "ComboBox", editable=FALSE, values=misclasses, text=misclass)
+  #misclassEntry <- tkwidget(inputFrame, "ComboBox", editable = FALSE, values = misclasses, text = misclass)
   
-  chainsEntry <- tkentry(inputFrame, text=tclVar(chains))
-  chainsLabel <- tklabel(inputFrame, text="chains")
+  chainsEntry <- tkentry(inputFrame, text = tclVar(chains))
+  chainsLabel <- tklabel(inputFrame, text = "chains")
   
-  burnEntry <- tkentry(inputFrame, text=tclVar(burn))
-  burnLabel <- tklabel(inputFrame, text="burn")
+  burnEntry <- tkentry(inputFrame, text = tclVar(burn))
+  burnLabel <- tklabel(inputFrame, text = "burn")
   
-  updateEntry <- tkentry(inputFrame, text=tclVar(update))
-  updateLabel <- tklabel(inputFrame, text="update")  
+  updateEntry <- tkentry(inputFrame, text = tclVar(update))
+  updateLabel <- tklabel(inputFrame, text = "update")  
   
-  thinEntry <- tkentry(inputFrame, text=tclVar(thin))
-  thinLabel <- tklabel(inputFrame, text="thin")  
+  thinEntry <- tkentry(inputFrame, text = tclVar(thin))
+  thinLabel <- tklabel(inputFrame, text = "thin")  
   
-  runButton <- ttkbutton(lButtonFrame, width=12, text="Run", command=onRun)
-  resetButton <- ttkbutton(lButtonFrame, width=12, text="Reset", command=onReset)
-  cancelButton <- ttkbutton(lButtonFrame, width=12, text="Cancel", command=onCancel)
+  runButton <- ttkbutton(lButtonFrame, width = 12, text = "Run", command = onRun)
+  resetButton <- ttkbutton(lButtonFrame, width = 12, text = "Reset", command = onReset)
+  cancelButton <- ttkbutton(lButtonFrame, width = 12, text = "Cancel", command = onCancel)
 
-  nextplotButton <- ttkbutton(rButtonFrame, width=12, text="Next Plot", command=function(...) onNextplot(envir=envirPEM, nvars=3))
-  convButton <- ttkbutton(rButtonFrame, width=12, text="Converge", command=onConv)
-  notconvButton <- ttkbutton(rButtonFrame, width=12, text="Not Converge", command=onNotconv)
+  nextplotButton <- ttkbutton(rButtonFrame, width = 12, text = "Next Plot", command = function(...) onNextplot(envir = envirPEM, nvars = 3))
+  convButton <- ttkbutton(rButtonFrame, width = 12, text = "Converge", command = onConv)
+  notconvButton <- ttkbutton(rButtonFrame, width = 12, text = "Not Converge", command = onNotconv)
   
   
   ## tkgrid() and tkpack() the inputs and frames together
   ## must be run "inside-out"
   
-  tkgrid(xLabel, xEntry, sticky="nw", padx=c(10,10), pady=c(10,15), columnspan=3)
-  tkgrid(nLabel, nEntry, sticky="nw", padx=c(10,10), pady=c(0,15), columnspan=3)
+  tkgrid(xLabel, xEntry, sticky = "nw", padx = c(10,10), pady = c(10,15), columnspan = 3)
+  tkgrid(nLabel, nEntry, sticky = "nw", padx = c(10,10), pady=c(0,15), columnspan=3)
   tkgrid(kLabel, kEntry, sticky="nw", padx=c(10,10), pady=c(0,15), columnspan=3)
   tkgrid(prior.pi.lLabel, prior.pi.l, prior.pi.r, sticky="nw", padx=c(10,0), pady=c(0,15), columnspan=2)
   tkgrid(prior.se.lLabel, prior.se.l, prior.se.r, sticky="nw", padx=c(10,0), pady=c(0,15), columnspan=2)

@@ -70,7 +70,6 @@ plotDiag <- function(x, plotnumber = "all", ...){
 #' @seealso For more details see documentation to the functions \code{\link{samplesBgr}}, 
 #' \code{\link{plotHistory}} and \code{\link{plotDensity}} from the package \pkg{BRugs}.
 #' @keywords manip
-#' @export
 # @references Literatur to be added...
 #' @examples
 #' \dontrun{diagnostics(nodes)}

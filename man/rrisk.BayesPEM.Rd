@@ -11,69 +11,63 @@ rrisk.BayesPEM(x, n, k, simulation = FALSE,
  max.time = '15minutes', plots = FALSE)
 }
 \arguments{
-\item{x}{scalar value for number of pools (\code{k>1}) or individual outcomes 
-(\code{k=1}) with positive test result}
+\item{x}{Scalar value for number of pools (\code{k>1}) or individual outcomes 
+(\code{k=1}) with positive test result.}
 
-\item{n}{scalar value for number of pools tested (\code{k>1}) or the sample 
-size in application study (\code{k=1})}
+\item{n}{Scalar value for number of pools tested (\code{k>1}) or the sample 
+size in application study (\code{k=1}).}
 
-\item{k}{scalar value for number of individual samples physically combined 
+\item{k}{Scalar value for number of individual samples physically combined 
 into one pool;
-set \code{k>1} for pooled sampling and \code{k=1} for individual sampling (default 1)}
+set \code{k>1} for pooled sampling and \code{k=1} for individual sampling (default 1).}
 
-\item{prior.pi}{numeric vector containing parameters of a beta distribution 
-as prior for prevalence \code{pi}, e.g. \cr \code{pi ~ prior.pi(*,*) = beta(*,*)}}
+\item{prior.pi}{Numeric vector containing parameters of a beta distribution 
+as prior for prevalence \code{pi}, e.g., \cr \code{pi ~ prior.pi(*,*) = beta(*,*)}.}
 
-\item{prior.se}{numeric vector containing parameters of a beta distribution 
-as prior for sensitivity \code{se}, e.g. \cr \code{se ~ prior.se(*,*) = beta(*,*)}. 
+\item{prior.se}{Numeric vector containing parameters of a beta distribution 
+as prior for sensitivity \code{se}, e.g., \cr \code{se ~ prior.se(*,*) = beta(*,*)}. 
 For fixed sensitivity scalar value.}
 
-\item{prior.sp}{numeric vector containing parameters of a beta distribution 
-as prior for specificity \code{sp}, e.g. \cr \code{sp ~ prior.sp(*,*) = beta(*,*)}. 
+\item{prior.sp}{Numeric vector containing parameters of a beta distribution 
+as prior for specificity \code{sp}, e.g., \cr \code{sp ~ prior.sp(*,*) = beta(*,*)}. 
 For fixed specifity scalar value.}
 
-\item{simulation}{not used any longer}
+\item{simulation}{Not used any longer.}
 
-\item{misclass}{character with legal character entries \cr
+\item{misclass}{Character with legal character entries \cr
 \code{individual}, \code{individual-fix-se}, \code{individual-fix-sp}, \code{individual-fix-se-sp}, \cr
 \code{pool}, \code{pool-fix-se}, \code{pool-fix-sp} or \code{pool-fix-se-sp}.\cr
 \code{fix-se}: fixed sensitivity\cr
 \code{fix-sp}: fixed specifity\cr
-\code{fix-se-sp}: fixed sensitivity and fixed specifity}
+\code{fix-se-sp}: fixed sensitivity and fixed specifity.}
 
-\item{chains}{positive single numeric value, number of independent MCMC 
-chains (default 3)}
+\item{chains}{Positive single numeric value, number of independent MCMC 
+chains (default 3).}
 
-\item{burn}{positive single numeric value, length of the burn-in period 
-(default 4000)}
+\item{burn}{Positive single numeric value, length of the burn-in period 
+(default 4000).}
 
-\item{thin}{positive single numeric value (default 1). The samples from every 
+\item{thin}{Positive single numeric value (default 1). The samples from every 
 k-th iteration will be used for inference, where k is the value of thin. 
 Setting thin > 1 can help to reduce the autocorrelation in the sample.}
 
-\item{update}{positive single numeric value, length of update iterations for 
-estimation (default 5000)}
+\item{update}{Positive single numeric value, length of update iterations for estimation (default 5000).}
 
-\item{max.time}{the maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags})}
+\item{max.time}{Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).}
 
-\item{plots}{logical, if \code{TRUE} the diagnostic plots will be displayed}
+\item{plots}{Logical, if \code{TRUE} the diagnostic plots will be displayed.}
 }
 \value{
-The function \code{rrisk.BayesPEM} returns an instance of the 
-\code{\linkS4class{bayesmodelClass}} class containing following informations
-\item{\code{convergence}}{logical, whether the model has converged 
-(assessed by the user)}
-\item{\code{results}}{data frame containing statistics of the posterior 
-distribution}
-\item{\code{jointpost}}{data frame giving the joint posterior probability 
-distribution}
-\item{\code{nodes}}{names of the parameters jointly estimated by the Bayes 
-model}
-\item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
-\item{\code{chains}}{number of independent MCMC chains}
-\item{\code{burn}}{length of burn-in period}
-\item{\code{thin}}{the thinning interval to be used}
-\item{\code{update}}{length of update iterations for estimation}
+The function \code{rrisk.BayesZIP} returns an instance of the \code{\linkS4class{bayesmodelClass}}
+class containing following information:
+\item{\code{convergence}}{Logical, whether the model has converged (assessed by the user).}
+\item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
+\item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
+\item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
+\item{\code{model}}{Model in rjags/JAGS syntax as a character string.}
+\item{\code{chains}}{Number of independent MCMC chains.}
+\item{\code{burn}}{Length of burn-in period.}
+\item{\code{update}}{Length of update iterations for estimation.}
 }
 \description{
 Bayesian PEM models provide the posterior distribution for the 
@@ -88,13 +82,11 @@ using a diagnostic test, for
 which some prior information on sensitivity and/or specificity is available.
 }
 \details{
-The Bayesian model for estimation prevalence, sensitivity and specificity has
-in BRugs/Winbugs syntax the following form:
 The application data (\code{k=1}) has one degree of freedom while the 
 underlying model has three unknown parameters. Thus, the model is not 
-identifiable and informative priors on at least two model parameters are 
-required. The Bayesian model for estimation prevalence, sensitivity and 
-specificity takes the following forms: \cr
+identifiable and informative priors on at least two model parameters are required. The Bayesian models for estimation prevalence, sensitivity and specificity take the following forms in rjags/JAGS (originally BRugs/Winbugs) syntax:
+
+ \cr
 Misclassifications at the individual level (\code{k=1} and \code{misclass="individual"})
 \preformatted{model{
 

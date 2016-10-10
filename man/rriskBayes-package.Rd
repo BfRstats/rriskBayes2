@@ -13,7 +13,7 @@ applications or launched during an \code{rrisk} session.
 The following Bayesian models are implemented in this package:
 \describe{
 \item{PEM}{prevalence estimation under misclassification}
-\item{ZIP}{estimation of a zero inflated Poisson (ZIP) model}
+\item{ZIP}{estimation of a zero inflated Poisson model}
 \item{ZINB}{zero inflated negative binomial model}}
 }
 \details{

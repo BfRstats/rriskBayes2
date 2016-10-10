@@ -10,52 +10,52 @@ rrisk.BayesZIP(data, prior.lambda = c(1, 10), prior.pi = c(0.8, 1),
  max.time = '15minutes', plots = FALSE)
 }
 \arguments{
-\item{data}{matrix, data frame or data set with positive integers, including 
-zeros and of the minimal length 10}
+\item{data}{Matrix, data frame or data set with positive integers, including 
+zeros and of the minimal length 10.}
 
-\item{prior.lambda}{numeric vector containing minimum and maximum of a uniform
-distribution used as prior for the Poisson parameter \code{lambda}, e.g.
-\code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}}
+\item{prior.lambda}{Numeric vector containing minimum and maximum of a uniform
+distribution used as prior for the Poisson parameter \code{lambda}, e.g.,
+\code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}.}
 
-\item{prior.pi}{numeric vector containing parameters of a beta distribution
+\item{prior.pi}{Numeric vector containing parameters of a beta distribution
 describing prior knowledge about prevalence (proportion of contaminated 
-samples), e.g. \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}}
+samples), e.g., \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.}
 
-\item{simulation}{not used any longer}
+\item{simulation}{Not used any longer.}
 
-\item{chains}{positive single numeric value, number of independent MCMC chains 
-(default 3)}
+\item{chains}{Positive single numeric value, number of independent MCMC chains 
+(default 3).}
 
-\item{burn}{positive single numeric value, length of the burn-in period 
-(default 4000)}
+\item{burn}{Positive single numeric value, length of the burn-in period 
+(default 4000).}
 
-\item{thin}{positive single numeric value (default 1). The samples from every 
+\item{thin}{Positive single numeric value (default 1). The samples from every 
 k-th iteration will be used for inference, where k is the value of thin. 
 Setting \code{thin > 1} can help to reduce the autocorrelation in the sample.}
 
-\item{update}{positive single numeric value, length of update iterations for 
-estimation (default 5000)}
+\item{update}{Positive single numeric value, length of update iterations for 
+estimation (default 5000).}
 
-\item{max.time}{the maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags})}
+\item{max.time}{Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).}
 
-\item{plots}{logical, if \code{TRUE} the diagnostic plots will be displayed 
-in separate windows}
+\item{plots}{Logical, if \code{TRUE} the diagnostic plots will be displayed 
+in separate windows .}
 }
 \value{
 The function \code{rrisk.BayesZIP} returns an instance of the 
 \code{\linkS4class{bayesmodelClass}}
-class containing following informations
-\item{\code{convergence}}{logical, whether the model has converged (assessed 
-by the user)}
-\item{\code{results}}{data frame containing statitsics of the posterior 
-distribution}
-\item{\code{jointpost}}{data frame giving the joint posterior probability 
-distribution}
-\item{\code{nodes}}{names of the parameters jointly estimated by the Bayes model}
-\item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
-\item{\code{chains}}{number of independent MCMC chains}
-\item{\code{burn}}{length of burn-in period}
-\item{\code{update}}{length of update iterations for estimation}
+class containing following information:
+\item{\code{convergence}}{Logical, whether the model has converged (assessed 
+by the user).}
+\item{\code{results}}{Data frame containing statitsics of the posterior 
+distribution.}
+\item{\code{jointpost}}{Data frame giving the joint posterior probability 
+distribution.}
+\item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
+\item{\code{model}}{Model in rjags/JAGS syntax as a character string.}
+\item{\code{chains}}{Number of independent MCMC chains.}
+\item{\code{burn}}{Length of burn-in period.}
+\item{\code{update}}{Length of update iterations for estimation.}
 }
 \description{
 Zero-inflated Poisson data are count data with an excess number 
@@ -70,7 +70,7 @@ parameter \code{pi} refers to the proportion of the second, true non-zero
 component.
 \cr \cr
 The Bayesian model for estimation prevalence and lambda parameter has
-in BRugs/Winbugs syntax following form 
+in rjags/JAGS (originally BRugs/Winbugs) syntax following form 
 \preformatted{model{
 
    lambda ~ dunif(prior.lambda[1], prior.lambda[2])
@@ -88,7 +88,7 @@ in BRugs/Winbugs syntax following form
 }
 }
 \note{
-The convergence of the model should be checked using the diagnostic plots
+The convergence of the model should be checked using the diagnostic plots.
 }
 \examples{
 \donttest{

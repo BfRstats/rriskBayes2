@@ -11,13 +11,11 @@
 #' using a diagnostic test, for
 #' which some prior information on sensitivity and/or specificity is available.
 #' @details 
-#' The Bayesian model for estimation prevalence, sensitivity and specificity has
-#' in BRugs/Winbugs syntax the following form:
 #' The application data (\code{k=1}) has one degree of freedom while the 
 #' underlying model has three unknown parameters. Thus, the model is not 
-#' identifiable and informative priors on at least two model parameters are 
-#' required. The Bayesian model for estimation prevalence, sensitivity and 
-#' specificity takes the following forms: \cr
+#' identifiable and informative priors on at least two model parameters are required. The Bayesian models for estimation prevalence, sensitivity and specificity take the following forms in rjags/JAGS (originally BRugs/Winbugs) syntax:
+#' 
+#'  \cr
 #' Misclassifications at the individual level (\code{k=1} and \code{misclass="individual"})
 #' \preformatted{model{
 #'
@@ -111,54 +109,48 @@
 #'  misclass = "pool", chains = 3, burn = 4000, 
 #'  thin = 1, update = 5000, 
 #'  max.time = '15minutes', plots = FALSE)
-#' @param x scalar value for number of pools (\code{k>1}) or individual outcomes 
-#' (\code{k=1}) with positive test result
-#' @param n scalar value for number of pools tested (\code{k>1}) or the sample 
-#' size in application study (\code{k=1})
-#' @param k scalar value for number of individual samples physically combined 
+#' @param x Scalar value for number of pools (\code{k>1}) or individual outcomes 
+#' (\code{k=1}) with positive test result.
+#' @param n Scalar value for number of pools tested (\code{k>1}) or the sample 
+#' size in application study (\code{k=1}).
+#' @param k Scalar value for number of individual samples physically combined 
 #' into one pool;
-#' set \code{k>1} for pooled sampling and \code{k=1} for individual sampling (default 1)
-#' @param simulation not used any longer
-#' @param prior.pi numeric vector containing parameters of a beta distribution 
-#' as prior for prevalence \code{pi}, e.g. \cr \code{pi ~ prior.pi(*,*) = beta(*,*)}
-#' @param prior.se numeric vector containing parameters of a beta distribution 
-#' as prior for sensitivity \code{se}, e.g. \cr \code{se ~ prior.se(*,*) = beta(*,*)}. 
+#' set \code{k>1} for pooled sampling and \code{k=1} for individual sampling (default 1).
+#' @param simulation Not used any longer.
+#' @param prior.pi Numeric vector containing parameters of a beta distribution 
+#' as prior for prevalence \code{pi}, e.g., \cr \code{pi ~ prior.pi(*,*) = beta(*,*)}.
+#' @param prior.se Numeric vector containing parameters of a beta distribution 
+#' as prior for sensitivity \code{se}, e.g., \cr \code{se ~ prior.se(*,*) = beta(*,*)}. 
 #' For fixed sensitivity scalar value.
-#' @param prior.sp numeric vector containing parameters of a beta distribution 
-#' as prior for specificity \code{sp}, e.g. \cr \code{sp ~ prior.sp(*,*) = beta(*,*)}. 
+#' @param prior.sp Numeric vector containing parameters of a beta distribution 
+#' as prior for specificity \code{sp}, e.g., \cr \code{sp ~ prior.sp(*,*) = beta(*,*)}. 
 #' For fixed specifity scalar value.
-#' @param misclass character with legal character entries \cr
+#' @param misclass Character with legal character entries \cr
 #' \code{individual}, \code{individual-fix-se}, \code{individual-fix-sp}, \code{individual-fix-se-sp}, \cr
 #' \code{pool}, \code{pool-fix-se}, \code{pool-fix-sp} or \code{pool-fix-se-sp}.\cr
 #' \code{fix-se}: fixed sensitivity\cr
 #' \code{fix-sp}: fixed specifity\cr
-#' \code{fix-se-sp}: fixed sensitivity and fixed specifity
-#' @param chains positive single numeric value, number of independent MCMC 
-#' chains (default 3)
-#' @param burn positive single numeric value, length of the burn-in period 
-#' (default 4000)
-#' @param thin positive single numeric value (default 1). The samples from every 
+#' \code{fix-se-sp}: fixed sensitivity and fixed specifity.
+#' @param chains Positive single numeric value, number of independent MCMC 
+#' chains (default 3).
+#' @param burn Positive single numeric value, length of the burn-in period 
+#' (default 4000).
+#' @param thin Positive single numeric value (default 1). The samples from every 
 #' k-th iteration will be used for inference, where k is the value of thin. 
 #' Setting thin > 1 can help to reduce the autocorrelation in the sample.
-#' @param update positive single numeric value, length of update iterations for 
-#' estimation (default 5000)
-#' @param max.time the maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags})
-#' @param plots logical, if \code{TRUE} the diagnostic plots will be displayed
-#' @return The function \code{rrisk.BayesPEM} returns an instance of the 
-#' \code{\linkS4class{bayesmodelClass}} class containing following informations
-#' \item{\code{convergence}}{logical, whether the model has converged 
-#' (assessed by the user)}
-#' \item{\code{results}}{data frame containing statistics of the posterior 
-#' distribution}
-#' \item{\code{jointpost}}{data frame giving the joint posterior probability 
-#' distribution}
-#' \item{\code{nodes}}{names of the parameters jointly estimated by the Bayes 
-#' model}
-#' \item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
-#' \item{\code{chains}}{number of independent MCMC chains}
-#' \item{\code{burn}}{length of burn-in period}
-#' \item{\code{thin}}{the thinning interval to be used}
-#' \item{\code{update}}{length of update iterations for estimation}
+#' @param update Positive single numeric value, length of update iterations for estimation (default 5000).
+#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).
+#' @param plots Logical, if \code{TRUE} the diagnostic plots will be displayed.
+#' @return The function \code{rrisk.BayesZIP} returns an instance of the \code{\linkS4class{bayesmodelClass}}
+#' class containing following information:
+#' \item{\code{convergence}}{Logical, whether the model has converged (assessed by the user).}
+#' \item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
+#' \item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
+#' \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
+#' \item{\code{model}}{Model in rjags/JAGS syntax as a character string.}
+#' \item{\code{chains}}{Number of independent MCMC chains.}
+#' \item{\code{burn}}{Length of burn-in period.}
+#' \item{\code{update}}{Length of update iterations for estimation.}
 #' @keywords manip
 #' @export
 #' @references Greiner, M., Belgoroski, N., NN (2011). Estimating prevalence 
@@ -302,7 +294,7 @@ return(out)
 #' component.
 #' \cr \cr
 #' The Bayesian model for estimation prevalence and lambda parameter has
-#' in BRugs/Winbugs syntax following form 
+#' in rjags/JAGS (originally BRugs/Winbugs) syntax following form 
 #' \preformatted{model{
 #' 
 #'    lambda ~ dunif(prior.lambda[1], prior.lambda[2])
@@ -326,42 +318,42 @@ return(out)
 #'  simulation = FALSE, chains = 3, burn = 4000, 
 #'  thin = 1, update = 5000, 
 #'  max.time = '15minutes', plots = FALSE)
-#' @param data matrix, data frame or data set with positive integers, including 
-#' zeros and of the minimal length 10
-#' @param prior.lambda numeric vector containing minimum and maximum of a uniform
-#' distribution used as prior for the Poisson parameter \code{lambda}, e.g.
-#' \code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}
-#' @param prior.pi numeric vector containing parameters of a beta distribution
+#' @param data Matrix, data frame or data set with positive integers, including 
+#' zeros and of the minimal length 10.
+#' @param prior.lambda Numeric vector containing minimum and maximum of a uniform
+#' distribution used as prior for the Poisson parameter \code{lambda}, e.g.,
+#' \code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}.
+#' @param prior.pi Numeric vector containing parameters of a beta distribution
 #' describing prior knowledge about prevalence (proportion of contaminated 
-#' samples), e.g. \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}
-#' @param simulation not used any longer 
-#' @param chains positive single numeric value, number of independent MCMC chains 
-#' (default 3)
-#' @param burn positive single numeric value, length of the burn-in period 
-#' (default 4000)
-#' @param thin positive single numeric value (default 1). The samples from every 
+#' samples), e.g., \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.
+#' @param simulation Not used any longer.
+#' @param chains Positive single numeric value, number of independent MCMC chains 
+#' (default 3).
+#' @param burn Positive single numeric value, length of the burn-in period 
+#' (default 4000).
+#' @param thin Positive single numeric value (default 1). The samples from every 
 #' k-th iteration will be used for inference, where k is the value of thin. 
 #' Setting \code{thin > 1} can help to reduce the autocorrelation in the sample.
-#' @param update positive single numeric value, length of update iterations for 
-#' estimation (default 5000)
-#' @param max.time the maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags})
-#' @param plots logical, if \code{TRUE} the diagnostic plots will be displayed 
-#' in separate windows 
+#' @param update Positive single numeric value, length of update iterations for 
+#' estimation (default 5000).
+#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).
+#' @param plots Logical, if \code{TRUE} the diagnostic plots will be displayed 
+#' in separate windows .
 #' @return The function \code{rrisk.BayesZIP} returns an instance of the 
 #' \code{\linkS4class{bayesmodelClass}}
-#' class containing following informations
-#' \item{\code{convergence}}{logical, whether the model has converged (assessed 
-#' by the user)}
-#' \item{\code{results}}{data frame containing statitsics of the posterior 
-#' distribution}
-#' \item{\code{jointpost}}{data frame giving the joint posterior probability 
-#' distribution}
-#' \item{\code{nodes}}{names of the parameters jointly estimated by the Bayes model}
-#' \item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
-#' \item{\code{chains}}{number of independent MCMC chains}
-#' \item{\code{burn}}{length of burn-in period}
-#' \item{\code{update}}{length of update iterations for estimation}
-#' @note The convergence of the model should be checked using the diagnostic plots
+#' class containing following information:
+#' \item{\code{convergence}}{Logical, whether the model has converged (assessed 
+#' by the user).}
+#' \item{\code{results}}{Data frame containing statitsics of the posterior 
+#' distribution.}
+#' \item{\code{jointpost}}{Data frame giving the joint posterior probability 
+#' distribution.}
+#' \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
+#' \item{\code{model}}{Model in rjags/JAGS syntax as a character string.}
+#' \item{\code{chains}}{Number of independent MCMC chains.}
+#' \item{\code{burn}}{Length of burn-in period.}
+#' \item{\code{update}}{Length of update iterations for estimation.}
+#' @note The convergence of the model should be checked using the diagnostic plots.
 #' @keywords manip
 #' @export
 #' @references Bohning, D., Dietz, E., Schlattman, P., Mendonca,  L. and  Kirchner, U. (1999). 
@@ -472,8 +464,7 @@ rrisk.BayesZIP <-  function(data,
 
 # rrisk.BayesZINB ---------------------------------------------------------
 
-#' @description Zero-inflated Negative-Binomial data are count data with an excess number of zeros. The
-#' ZINB model involves the prevalence parameter \code{pi}. The negative binomial distribution can be seen
+#' @description Zero-inflated Negative-Binomial data are count data with an excess number of zeros. The ZINB (also referred to as 'gamma-poisson') model involves the prevalence parameter \code{pi}. The negative binomial distribution can be seen
 #' as a poisson(\eqn{\lambda}) distribution, where \eqn{\lambda} follows a gamma distribution.
 #' @details The ZINB model applies to count data and can be interpreted as a mixture distribution with one component
 #' comprising the 'true' zeros and another component of negative-binomially distributed values with density parameter 
@@ -482,7 +473,7 @@ rrisk.BayesZIP <-  function(data,
 #' non-zero component.
 #' \cr \cr
 #' The Bayesian model for estimation prevalence and lambda parameter has
-#' in BRugs/Winbugs syntax following form
+#' in rjags/JAGS (originally BRugs/Winbugs) syntax following form
 #' \preformatted{model{
 #' 
 #'    pi  ~ dbeta(prior.pi[1], prior.pi[2])
@@ -504,34 +495,32 @@ rrisk.BayesZIP <-  function(data,
 #'}
 #' @name rrisk.BayesZINB
 #' @aliases rrisk.BayesZINB
-#' @title Bayes estimation of a zero inflated negative binomial (ZINB) (also referred to as 'gamma-poisson') model
+#' @title Bayes estimation of a zero inflated negative binomial (ZINB) model
 #' @usage rrisk.BayesZINB(data, prior.pi = c(0.8, 1), 
 #' simulation = FALSE, chains = 3, burn = 4000,
 #'  thin = 1, update = 5000,
 #'   max.time = '15minutes', plots = FALSE)
-#' @param data matrix, data frame or data set with positive integers, including zeros and of the minimal length 10
-#' @param prior.pi numeric vector containing parameters of a beta distribution
-#' describing prior knowledge about prevalence (proportion of contaminated samples), e.g. \cr \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}
-#' @param simulation not used any longer
-#' @param chains positive single numeric value, number of independent MCMC chains (default 3)
-#' @param burn positive single numeric value, length of the burn-in period (default 4000)
-#' @param thin positive single numeric value (default 1). The samples from every k-th iteration will be used for
-#'        inference, where k is the value of thin. Setting \code{thin > 1} can help to reduce the autocorrelation
-#'        in the sample.
-#' @param update positive single numeric value, length of update iterations for estimation (default 5000)
-#' @param max.time the maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags})
-#' @param plots logical, if \code{TRUE} the diagnostic plots will be displayed in separate windows 
+#' @param data Matrix, data frame or data set with positive integers, including zeros and of the minimal length 10.
+#' @param prior.pi Numeric vector containing parameters of a beta distribution
+#' describing prior knowledge about prevalence (proportion of contaminated samples), e.g., \cr \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.
+#' @param simulation Not used any longer.
+#' @param chains Positive single numeric value, number of independent MCMC chains (default 3).
+#' @param burn Positive single numeric value, length of the burn-in period (default 4000).
+#' @param thin Positive single numeric value (default 1). The samples from every k-th iteration will be used for inference, where k is the value of thin. Setting \code{thin > 1} can help to reduce the autocorrelation in the sample.
+#' @param update Positive single numeric value, length of update iterations for estimation (default 5000).
+#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).
+#' @param plots Logical, if \code{TRUE} the diagnostic plots will be displayed in separate windows.
 #' @return The function \code{rrisk.BayesZIP} returns an instance of the \code{\linkS4class{bayesmodelClass}}
-#' class containing following informations
-#' \item{\code{convergence}}{logical, whether the model has converged (assessed by the user)}
-#' \item{\code{results}}{data frame containing statitsics of the posterior distribution}
-#' \item{\code{jointpost}}{data frame giving the joint posterior probability distribution}
-#' \item{\code{nodes}}{names of the parameters jointly estimated by the Bayes model}
-#' \item{\code{model}}{model in BRugs/Winbugs syntax as a character string}
-#' \item{\code{chains}}{number of independent MCMC chains}
-#' \item{\code{burn}}{length of burn-in period}
-#' \item{\code{update}}{length of update iterations for estimation}
-#' @note The convergence of the model should be checked using the diagnostic plots
+#' class containing following information:
+#' \item{\code{convergence}}{Logical, whether the model has converged (assessed by the user).}
+#' \item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
+#' \item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
+#' \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
+#' \item{\code{model}}{Model in rjags/JAGS syntax as a character string.}
+#' \item{\code{chains}}{Number of independent MCMC chains.}
+#' \item{\code{burn}}{Length of burn-in period.}
+#' \item{\code{update}}{Length of update iterations for estimation.}
+#' @note The convergence of the model should be checked using the diagnostic plots.
 #' @export
 #' @references Lunn, D. et al. (2012). The BUGS book: A practical introduction to Bayesian analysis. CRC press. p.353, 117
 #' @examples
