@@ -7,15 +7,27 @@
 plotDiag(x, plotnumber)
 }
 \arguments{
-\item{x}{runjags object}
+\item{x}{Runjags object}
 
-\item{plotnumber}{single numerical value (1 for plotting Gelman-Rubin convergence
-statistic (\code{samplesBgr()}), 2 for plotting history (\code{plotDensity}),
-3 for plotting autocorrelation plots (\code{plotAutoC})) and 4 for plotting density plots}
+\item{plotnumber}{Single numerical value \cr
+1 for plotting the trace \cr
+2 for plotting the cumulative distribution function \cr
+3 for plotting the histogram \cr
+4 for plotting the autocorrelation
+5 for plotting all plots and additionally the Gelman and Rubin plot\cr}
+
+\item{...}{Further plotting parameters from the \code{plot} function of \code{\link{runjags}}.}
 }
 \description{
 Auxiliary function function for plotting graphical convergence
  diagnostics for Bayes models
+}
+\examples{
+\dontrun{
+resPEM <- rrisk.BayesPEM(x = 14, n = 100, k = 4, prior.se = c(64, 4), prior.sp = c(94, 16))
+plotDiag(resPEM@results, plotnumber = 3)
+plotDiag(resPEM@results, plotnumber = "all")
+}
 }
 \keyword{manip}
 

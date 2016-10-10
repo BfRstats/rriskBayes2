@@ -40,7 +40,7 @@ onNextplot <- function(envir, nvars, ...){
 #'  chains=3, burn=1000, update=10000, thin=1)
 #' @param data A vector of numeric data, containing zeros, and of minimal length 10.
 #' @param prior.lambda Numeric vector containing minimum and maximum of a uniform
-#' distribution used as prior for the Poisson parameter \code{lambda}, e.g. \cr \code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}.
+#' distribution used as prior for the Poisson parameter \code{lambda}, e.g., \cr \code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}.
 #' @param prior.pi Numeric vector containing parameters of a beta distribution
 #' describing prior knowledge about prevalence (proportion of contaminated samples), e.g., \cr \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.
 #' @param chains Positive single numeric value, number of independent MCMC chains (default 3).
@@ -270,14 +270,14 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
 #' @name PEMGUI
 #' @aliases PEMGUI
 #' @title GUI for Bayesian Prevalence estimation under misclassification (PEM)
-#' @usage PEMGUI(x=20, n=20, k=10, prior.pi=c(1,19), prior.se=c(1,1),
-#'  prior.sp=c(1,1), chains=3, burn=1000, update=10000, thin=1)
-#' @param x Scalar value for number of pools (\code{k>1}) or single outcomes (\code{k=1}) with positive test result.
-#' @param n Scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k=1}).
+#' @usage PEMGUI(x = 20, n = 20, k = 10, prior.pi = c(1,19), prior.se = c(1,1),
+#'  prior.sp = c(1,1), chains = 3, burn = 1000, update = 10000, thin = 1)
+#' @param x Scalar value for number of pools (\code{k>1}) or single outcomes (\code{k = 1}) with positive test result.
+#' @param n Scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k = 1}).
 #' @param k Scalar value for number of individual samples physically combined into one pool.
-#' @param prior.pi Numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g. \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.
-#' @param prior.se Numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} ~ \code{prior.se(*,*)=beta(*,*)}.
-#' @param prior.sp Numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} ~ \code{prior.sp(*,*) = beta(*,*)}.
+#' @param prior.pi Numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g., \code{pi} ~ \code{prior.pi(*,*) = beta(*,*)}.
+#' @param prior.se Numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g., \code{se} ~ \code{prior.se(*,*) = beta(*,*)}.
+#' @param prior.sp Numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g., \code{sp} ~ \code{prior.sp(*,*) = beta(*,*)}.
 #' @param chains Positive single numeric value, number of independent MCMC chains (default 3).
 #' @param burn Positive single numeric value, length of the burn-in period (default 1000).
 #' @param update positive single numeric value, length of update iterations for estimation (default 10000).
@@ -306,6 +306,7 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
 #' # Example of PEM model. Without parameters,
 #' # the input fields will show default values
 #' #------------------------------------------
+#' 
 #' \donttest{mod <- PEMGUI()}
 
 PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
@@ -350,7 +351,7 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
     #"trace", "ecdf", "histogram", "autocorr" plots
     k <- 1
     for(i in 1:nvars) {
-      assign(paste0("imgPlot", k), value =   tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirPEM)
+      assign(paste0("imgPlot", k), value = tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirPEM)
       k <- k+1
     }
     #crosscorrelation plot

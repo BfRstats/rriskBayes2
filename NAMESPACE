@@ -2,6 +2,7 @@
 
 export(PEMGUI)
 export(ZIPGUI)
+export(diagnostics)
 export(plotDiag)
 export(rrisk.BayesPEM)
 export(rrisk.BayesZINB)

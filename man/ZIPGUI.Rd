@@ -11,7 +11,7 @@ ZIPGUI(data=NULL, prior.lambda=c(1,10), prior.pi=c(0.8,1),
 \item{data}{A vector of numeric data, containing zeros, and of minimal length 10.}
 
 \item{prior.lambda}{Numeric vector containing minimum and maximum of a uniform
-distribution used as prior for the Poisson parameter \code{lambda}, e.g. \cr \code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}.}
+distribution used as prior for the Poisson parameter \code{lambda}, e.g., \cr \code{lambda} ~ \code{prior.lambda(*,*)=unif(*,*)}.}
 
 \item{prior.pi}{Numeric vector containing parameters of a beta distribution
 describing prior knowledge about prevalence (proportion of contaminated samples), e.g., \cr \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.}

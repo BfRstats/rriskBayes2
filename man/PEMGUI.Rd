@@ -4,21 +4,21 @@
 \alias{PEMGUI}
 \title{GUI for Bayesian Prevalence estimation under misclassification (PEM)}
 \usage{
-PEMGUI(x=20, n=20, k=10, prior.pi=c(1,19), prior.se=c(1,1),
- prior.sp=c(1,1), chains=3, burn=1000, update=10000, thin=1)
+PEMGUI(x = 20, n = 20, k = 10, prior.pi = c(1,19), prior.se = c(1,1),
+ prior.sp = c(1,1), chains = 3, burn = 1000, update = 10000, thin = 1)
 }
 \arguments{
-\item{x}{Scalar value for number of pools (\code{k>1}) or single outcomes (\code{k=1}) with positive test result.}
+\item{x}{Scalar value for number of pools (\code{k>1}) or single outcomes (\code{k = 1}) with positive test result.}
 
-\item{n}{Scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k=1}).}
+\item{n}{Scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k = 1}).}
 
 \item{k}{Scalar value for number of individual samples physically combined into one pool.}
 
-\item{prior.pi}{Numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g. \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.}
+\item{prior.pi}{Numeric vector containing parameters of a beta distribution as prior for prevalence \code{pi}, e.g., \code{pi} ~ \code{prior.pi(*,*) = beta(*,*)}.}
 
-\item{prior.se}{Numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g. \code{se} ~ \code{prior.se(*,*)=beta(*,*)}.}
+\item{prior.se}{Numeric vector containing parameters of a beta distribution as prior for sensitivity \code{se}, e.g., \code{se} ~ \code{prior.se(*,*) = beta(*,*)}.}
 
-\item{prior.sp}{Numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g. \code{sp} ~ \code{prior.sp(*,*) = beta(*,*)}.}
+\item{prior.sp}{Numeric vector containing parameters of a beta distribution as prior for specificity \code{sp}, e.g., \code{sp} ~ \code{prior.sp(*,*) = beta(*,*)}.}
 
 \item{chains}{Positive single numeric value, number of independent MCMC chains (default 3).}
 
@@ -59,6 +59,7 @@ provided by the \pkg{BRugs} package.
 # Example of PEM model. Without parameters,
 # the input fields will show default values
 #------------------------------------------
+
 \donttest{mod <- PEMGUI()}
 }
 \seealso{

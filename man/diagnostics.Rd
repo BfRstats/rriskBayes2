@@ -2,14 +2,14 @@
 % Please edit documentation in R/plots.R
 \name{diagnostics}
 \alias{diagnostics}
-\title{Diagnostic plots for MCMC models provided by rrisk.BayesPEM and rrisk.BayesZIP functions}
+\title{Diagnostic plots for MCMC models provided by rrisk.BayesPEM, rrisk.BayesZIP and rrisk.BayesZINB functions}
 \usage{
-diagnostics(nodes, plots = FALSE)
+diagnostics(x, plots = FALSE)
 }
 \arguments{
-\item{plots}{logical, if \code{TRUE} the diagnostic plots will be displayed in separate windows}
+\item{x}{Result slot returned by \code{\link{rrisk.BayesPEM}}, \code{\link{rrisk.BayesZIP}} or \code{\link{rrisk.BayesZINB}} of class \code{\link{runjags}}.}
 
-\item{nodes}{character string, the name of parameters(s)}
+\item{plots}{Logical, if \code{TRUE} the diagnostic plots will be displayed in separate windows}
 }
 \value{
 Returns \code{TRUE} if the user confirms convergence. Otherwise the 
@@ -18,23 +18,21 @@ function returns \code{FALSE}.
 \description{
 This function provides a GUI for diagnostic plots to check convergence in Markov
 chain Monte-Carlo (MCMC) models provided by 
-\code{\link{rrisk.BayesZIP}} and \code{\link{rrisk.BayesPEM}}.
+\code{\link{rrisk.BayesZIP}}, \code{\link{rrisk.BayesZINB}} and \code{\link{rrisk.BayesPEM}}.
 }
 \details{
-The argument \code{nodes} denotes the node(s) to be used for diagnostic plots 
-of the MCMC chains. The user is interactively requested to confirm whether 
+The argument \code{x} denotes the result of the MCMC models. The user is interactively requested to confirm whether 
 the convergence has been reached. In this case the function returns 
 \code{TRUE} otherwise \code{FALSE}.
-\cr \cr
-This function is not intended to be called directly but is internally called
-within \code{\link{rrisk.BayesZIP}} or \code{\link{rrisk.BayesPEM}}.
+\cr
+The function is not intended to be called directly but is internally called
+within the models.
 }
 \examples{
-\dontrun{diagnostics(nodes)}
+\dontrun{
+resPEM <- rrisk.BayesPEM(x = 14, n = 100, k = 4, prior.se = c(64, 4), prior.sp = c(94, 16))
+diagnostics(resPEM@results)
 }
-\seealso{
-For more details see documentation to the functions \code{\link{samplesBgr}}, 
-\code{\link{plotHistory}} and \code{\link{plotDensity}} from the package \pkg{BRugs}.
 }
 \keyword{manip}
 
