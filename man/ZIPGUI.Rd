@@ -33,7 +33,7 @@ class containing following information
 \item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
 \item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
 \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
-\item{\code{model}}{Model in BRugs/Winbugs syntax as a character string.}
+\item{\code{model}}{Model in rjags/JAGS (originally BRugs/Winbugs) syntax as a character string.}
 \item{\code{chains}}{Number of independent MCMC chains.}
 \item{\code{burn}}{Length of burn-in period.}
 \item{\code{update}}{Length of update iterations for estimation.}
@@ -47,9 +47,7 @@ The convergence of the model will be entered by the user after the simulation pr
 \examples{
 \donttest{
 data <- rpois(30, 4)
-prior.lambda <- c(1, 10)
-prior.pi <- c(0.8, 1)
-ZIPGUI(data, prior.lambda, prior.pi)}
+ZIPGUI(data)}
 }
 \references{
 Bohning, D., E. Dietz, P. Schlattman, L. Mendonca, and U. Kirchner (1999). 

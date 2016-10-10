@@ -2,13 +2,13 @@
 % Please edit documentation in R/models.R
 \name{rrisk.BayesPEM}
 \alias{rrisk.BayesPEM}
-\title{Bayesian Prevalence estimation under misclassification (PEM)}
+\title{Bayesian Prevalence Estimation under Misclassification (PEM)}
 \usage{
 rrisk.BayesPEM(x, n, k, simulation = FALSE, 
  prior.pi = c(1, 1), prior.se, prior.sp,
  misclass = "pool", chains = 3, burn = 4000, 
  thin = 1, update = 5000, 
- max.time = '15minutes', plots = FALSE)
+ max.time = "15minutes", plots = FALSE)
 }
 \arguments{
 \item{x}{Scalar value for number of pools (\code{k>1}) or individual outcomes 
@@ -34,12 +34,12 @@ For fixed specifity scalar value.}
 
 \item{simulation}{Not used any longer.}
 
-\item{misclass}{Character with legal character entries \cr
+\item{misclass}{Character with legal character entries: \cr
 \code{individual}, \code{individual-fix-se}, \code{individual-fix-sp}, \code{individual-fix-se-sp}, \cr
 \code{pool}, \code{pool-fix-se}, \code{pool-fix-sp} or \code{pool-fix-se-sp}.\cr
 \code{fix-se}: fixed sensitivity\cr
 \code{fix-sp}: fixed specifity\cr
-\code{fix-se-sp}: fixed sensitivity and fixed specifity.}
+\code{fix-se-sp}: fixed sensitivity AND fixed specifity.}
 
 \item{chains}{Positive single numeric value, number of independent MCMC 
 chains (default 3).}
@@ -53,7 +53,7 @@ Setting thin > 1 can help to reduce the autocorrelation in the sample.}
 
 \item{update}{Positive single numeric value, length of update iterations for estimation (default 5000).}
 
-\item{max.time}{Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).}
+\item{max.time}{Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default "15minutes") (see \link[runjags]{autorun.jags}).}
 
 \item{plots}{Logical, if \code{TRUE} the diagnostic plots will be displayed.}
 }

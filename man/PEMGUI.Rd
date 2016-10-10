@@ -2,7 +2,7 @@
 % Please edit documentation in R/guis.R
 \name{PEMGUI}
 \alias{PEMGUI}
-\title{GUI for Bayesian Prevalence estimation under misclassification (PEM)}
+\title{GUI for Bayesian Prevalence Estimation under Misclassification (PEM)}
 \usage{
 PEMGUI(x = 20, n = 20, k = 10, prior.pi = c(1,19), prior.se = c(1,1),
  prior.sp = c(1,1), chains = 3, burn = 1000, update = 10000, thin = 1)
@@ -37,7 +37,7 @@ class containing following information
 \item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
 \item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
 \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
-\item{\code{model}}{Model in BRugs/Winbugs syntax as a character string.}
+\item{\code{model}}{Model in rjags/JAGS (originally BRugs/Winbugs) syntax as a character string.}
 \item{\code{chains}}{Number of independent MCMC chains.}
 \item{\code{burn}}{Length of burn-in period.}
 \item{\code{update}}{Length of update iterations for estimation.}
@@ -51,8 +51,7 @@ the pool level, equivalent to \code{missclass='pool'} in \code{rrisk.BayesPEM}
 function. See \code{\link{rrisk.BayesPEM}} for more details.
 }
 \note{
-The convergence of the model is assessed by the user using diagnostic plots
-provided by the \pkg{BRugs} package.
+The convergence of the model is assessed by the user using diagnostic plots.
 }
 \examples{
 #------------------------------------------

@@ -103,12 +103,12 @@
 #'      }}
 #' @name rrisk.BayesPEM
 #' @aliases rrisk.BayesPEM
-#' @title Bayesian Prevalence estimation under misclassification (PEM)
+#' @title Bayesian Prevalence Estimation under Misclassification (PEM)
 #' @usage rrisk.BayesPEM(x, n, k, simulation = FALSE, 
 #'  prior.pi = c(1, 1), prior.se, prior.sp,
 #'  misclass = "pool", chains = 3, burn = 4000, 
 #'  thin = 1, update = 5000, 
-#'  max.time = '15minutes', plots = FALSE)
+#'  max.time = "15minutes", plots = FALSE)
 #' @param x Scalar value for number of pools (\code{k>1}) or individual outcomes 
 #' (\code{k=1}) with positive test result.
 #' @param n Scalar value for number of pools tested (\code{k>1}) or the sample 
@@ -125,12 +125,12 @@
 #' @param prior.sp Numeric vector containing parameters of a beta distribution 
 #' as prior for specificity \code{sp}, e.g., \cr \code{sp ~ prior.sp(*,*) = beta(*,*)}. 
 #' For fixed specifity scalar value.
-#' @param misclass Character with legal character entries \cr
+#' @param misclass Character with legal character entries: \cr
 #' \code{individual}, \code{individual-fix-se}, \code{individual-fix-sp}, \code{individual-fix-se-sp}, \cr
 #' \code{pool}, \code{pool-fix-se}, \code{pool-fix-sp} or \code{pool-fix-se-sp}.\cr
 #' \code{fix-se}: fixed sensitivity\cr
 #' \code{fix-sp}: fixed specifity\cr
-#' \code{fix-se-sp}: fixed sensitivity and fixed specifity.
+#' \code{fix-se-sp}: fixed sensitivity AND fixed specifity.
 #' @param chains Positive single numeric value, number of independent MCMC 
 #' chains (default 3).
 #' @param burn Positive single numeric value, length of the burn-in period 
@@ -139,7 +139,7 @@
 #' k-th iteration will be used for inference, where k is the value of thin. 
 #' Setting thin > 1 can help to reduce the autocorrelation in the sample.
 #' @param update Positive single numeric value, length of update iterations for estimation (default 5000).
-#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).
+#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default "15minutes") (see \link[runjags]{autorun.jags}).
 #' @param plots Logical, if \code{TRUE} the diagnostic plots will be displayed.
 #' @return The function \code{rrisk.BayesZIP} returns an instance of the \code{\linkS4class{bayesmodelClass}}
 #' class containing following information:
@@ -205,7 +205,7 @@ rrisk.BayesPEM <- function(x, n, k = 1,
                            simulation = FALSE,
                            misclass = "pool",
                            chains = 3, burn = 4000, thin = 1, update = 5000,
-                           max.time = '15minutes',
+                           max.time = "15minutes",
                            plots = FALSE
                            )
 {
@@ -317,7 +317,7 @@ return(out)
 #' @usage rrisk.BayesZIP(data, prior.lambda = c(1, 10), prior.pi = c(0.8, 1), 
 #'  simulation = FALSE, chains = 3, burn = 4000, 
 #'  thin = 1, update = 5000, 
-#'  max.time = '15minutes', plots = FALSE)
+#'  max.time = "15minutes", plots = FALSE)
 #' @param data Matrix, data frame or data set with positive integers, including 
 #' zeros and of the minimal length 10.
 #' @param prior.lambda Numeric vector containing minimum and maximum of a uniform
@@ -336,7 +336,7 @@ return(out)
 #' Setting \code{thin > 1} can help to reduce the autocorrelation in the sample.
 #' @param update Positive single numeric value, length of update iterations for 
 #' estimation (default 5000).
-#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).
+#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default "15minutes") (see \link[runjags]{autorun.jags}).
 #' @param plots Logical, if \code{TRUE} the diagnostic plots will be displayed 
 #' in separate windows .
 #' @return The function \code{rrisk.BayesZIP} returns an instance of the 
@@ -395,7 +395,7 @@ rrisk.BayesZIP <-  function(data,
                             burn = 4000,
                             thin = 1,
                             update = 5000,
-                            max.time = '15minutes',
+                            max.time = "15minutes",
                             plots = FALSE)
   {
     #####check input arguments #####
@@ -499,7 +499,7 @@ rrisk.BayesZIP <-  function(data,
 #' @usage rrisk.BayesZINB(data, prior.pi = c(0.8, 1), 
 #' simulation = FALSE, chains = 3, burn = 4000,
 #'  thin = 1, update = 5000,
-#'   max.time = '15minutes', plots = FALSE)
+#'   max.time = "15minutes", plots = FALSE)
 #' @param data Matrix, data frame or data set with positive integers, including zeros and of the minimal length 10.
 #' @param prior.pi Numeric vector containing parameters of a beta distribution
 #' describing prior knowledge about prevalence (proportion of contaminated samples), e.g., \cr \code{pi} ~ \code{prior.pi(*,*)=beta(*,*)}.
@@ -508,7 +508,7 @@ rrisk.BayesZIP <-  function(data,
 #' @param burn Positive single numeric value, length of the burn-in period (default 4000).
 #' @param thin Positive single numeric value (default 1). The samples from every k-th iteration will be used for inference, where k is the value of thin. Setting \code{thin > 1} can help to reduce the autocorrelation in the sample.
 #' @param update Positive single numeric value, length of update iterations for estimation (default 5000).
-#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).
+#' @param max.time Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default "15minutes") (see \link[runjags]{autorun.jags}).
 #' @param plots Logical, if \code{TRUE} the diagnostic plots will be displayed in separate windows.
 #' @return The function \code{rrisk.BayesZIP} returns an instance of the \code{\linkS4class{bayesmodelClass}}
 #' class containing following information:
@@ -579,7 +579,7 @@ rrisk.BayesZINB <-  function(data,
                              burn = 4000,
                              thin = 1,
                              update = 5000,
-                             max.time = '15minutes',
+                             max.time = "15minutes",
                              plots = FALSE)
   {
     

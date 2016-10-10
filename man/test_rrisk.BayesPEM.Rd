@@ -7,12 +7,12 @@
 test_rrisk.BayesPEM(misclass)
 }
 \arguments{
-\item{misclass}{See \code{\link{misclass}} character with legal character entries \cr
+\item{misclass}{See \code{\link{misclass}} character with legal character entries: \cr
 \code{individual}, \code{individual-fix-se}, \code{individual-fix-sp}, \code{individual-fix-se-sp}, \cr
 \code{pool}, \code{pool-fix-se}, \code{pool-fix-sp} or \code{pool-fix-se-sp}.\cr
 \code{fix-se}: fixed sensitivity\cr
 \code{fix-sp}: fixed specifity\cr
-\code{fix-se-sp}: fixed sensitivity and fixed specifity}
+\code{fix-se-sp}: fixed sensitivity AND fixed specifity}
 }
 \value{
 Returns an instance of the 

@@ -7,7 +7,7 @@
 rrisk.BayesZIP(data, prior.lambda = c(1, 10), prior.pi = c(0.8, 1), 
  simulation = FALSE, chains = 3, burn = 4000, 
  thin = 1, update = 5000, 
- max.time = '15minutes', plots = FALSE)
+ max.time = "15minutes", plots = FALSE)
 }
 \arguments{
 \item{data}{Matrix, data frame or data set with positive integers, including 
@@ -36,7 +36,7 @@ Setting \code{thin > 1} can help to reduce the autocorrelation in the sample.}
 \item{update}{Positive single numeric value, length of update iterations for 
 estimation (default 5000).}
 
-\item{max.time}{Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default '15minutes') (see \link[runjags]{autorun.jags}).}
+\item{max.time}{Maximum time for which the function is allowed to extend the chains. Acceptable units include 'seconds', 'minutes', 'hours', 'days', 'weeks' (default "15minutes") (see \link[runjags]{autorun.jags}).}
 
 \item{plots}{Logical, if \code{TRUE} the diagnostic plots will be displayed 
 in separate windows .}

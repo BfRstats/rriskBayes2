@@ -55,7 +55,7 @@ onNextplot <- function(envir, nvars, ...){
 #' \item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
 #' \item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
 #' \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
-#' \item{\code{model}}{Model in BRugs/Winbugs syntax as a character string.}
+#' \item{\code{model}}{Model in rjags/JAGS (originally BRugs/Winbugs) syntax as a character string.}
 #' \item{\code{chains}}{Number of independent MCMC chains.}
 #' \item{\code{burn}}{Length of burn-in period.}
 #' \item{\code{update}}{Length of update iterations for estimation.}
@@ -69,13 +69,11 @@ onNextplot <- function(envir, nvars, ...){
 #' @examples
 #' \donttest{
 #' data <- rpois(30, 4)
-#' prior.lambda <- c(1, 10)
-#' prior.pi <- c(0.8, 1)
-#' ZIPGUI(data, prior.lambda, prior.pi)}
+#' ZIPGUI(data)}
 
 
-ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
-                   chains=3, burn=1000, update=10000,thin=1){
+ZIPGUI <- function(data, prior.lambda = c(0, 100), prior.pi = c(1, 1),
+                   chains = 3, burn = 1000, update = 10000,thin = 1){
   if(missing(data))
     stop("please provide data of minimal length 10!")
   
@@ -91,32 +89,32 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
     update. <- as.numeric(tclvalue(tkget(updateEntry)))
     thin. <- as.numeric(tclvalue(tkget(thinEntry)))
     
-    mod <- try(rrisk.BayesZIP(data=data, prior.pi=c(prior.pi.l., prior.pi.r.), 
-                              prior.lambda=c(prior.lambda.l., prior.lambda.r.),
-                              chains=chains., burn=burn., update=update.,thin=thin.))
+    mod <- try(rrisk.BayesZIP(data = data, prior.pi = c(prior.pi.l., prior.pi.r.), 
+                              prior.lambda = c(prior.lambda.l., prior.lambda.r.),
+                              chains = chains., burn = burn., update = update.,thin = thin.))
     
     if(inherits(mod, "try-error")){
       tkdestroy(bayesZIPWindow) 
-      stop("Any error occured during fitting bayesian ZIP model",call.=FALSE)
+      stop("Any error occured during fitting bayesian ZIP model",call. = FALSE)
     }
-    assign("mod", value=mod, envir=envirZIP)
+    assign("mod", value = mod, envir = envirZIP)
     vars <- mod@results$monitor
     nvars <- length(vars)
-    assign("nvars", nvars, envir=envirZIP)
+    assign("nvars", nvars, envir = envirZIP)
  
     #"trace", "ecdf", "histogram", "autocorr" plots
     k <- 1
     for(i in 1:nvars) {
-      assign(paste0("imgPlot", k), value = tkrplot(imgFrame,fun=function() plot(mod@results, vars=vars[k]), hscale=1.6, vscale=1.5), envir=envirZIP)
+      assign(paste0("imgPlot", k), value  =  tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirZIP)
       k <- k+1
     }
     #"crosscorrelation" plot
-    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun=function() plot(mod@results, vars=vars, plot.type="crosscorr"), hscale=1.6, vscale=1.5), envir=envirZIP)
+    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars, plot.type = "crosscorr"), hscale = 1.6, vscale = 1.5), envir = envirZIP)
  
-    imgPlot1 <- get("imgPlot1", envir=envirZIP)
-    tkpack(imgPlot1, side="top")
+    imgPlot1 <- get("imgPlot1", envir = envirZIP)
+    tkpack(imgPlot1, side = "top")
     
-    assign("plotNumber", value=1, envir = envirZIP)
+    assign("plotNumber", value = 1, envir = envirZIP)
     
     tkraise(bayesZIPWindow)
     
@@ -126,14 +124,14 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
   # what happens by pressing RESET button
   
   onReset <- function(...){
-    tkconfigure(prior.pi.l, text=tclVar(prior.pi[1]))
-    tkconfigure(prior.pi.r, text=tclVar(prior.pi[2]))
-    tkconfigure(prior.lambda.l, text=tclVar(prior.lambda[1]))
-    tkconfigure(prior.lambda.r, text=tclVar(prior.lambda[2]))
-    tkconfigure(chainsEntry, text=tclVar(chains))
-    tkconfigure(burnEntry, text=tclVar(burn))
-    tkconfigure(updateEntry, text=tclVar(update))
-    tkconfigure(thinEntry, text=tclVar(thin))
+    tkconfigure(prior.pi.l, text = tclVar(prior.pi[1]))
+    tkconfigure(prior.pi.r, text = tclVar(prior.pi[2]))
+    tkconfigure(prior.lambda.l, text = tclVar(prior.lambda[1]))
+    tkconfigure(prior.lambda.r, text = tclVar(prior.lambda[2]))
+    tkconfigure(chainsEntry, text = tclVar(chains))
+    tkconfigure(burnEntry, text = tclVar(burn))
+    tkconfigure(updateEntry, text = tclVar(update))
+    tkconfigure(thinEntry, text = tclVar(thin))
   } # end onReset() function
   
   
@@ -150,9 +148,9 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
   # what happens by pressing CONVERGENCE button
   
   onConv <- function(...){
-    mod <- get("mod", envir=envirZIP)
+    mod <- get("mod", envir = envirZIP)
     mod@convergence <- TRUE
-    assign("mod", value=mod, envir=envirZIP)
+    assign("mod", value = mod, envir = envirZIP)
     tkdestroy(bayesZIPWindow)
   } # end fucntion onConv()
   
@@ -160,16 +158,16 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
   # what happens by pressing CONVERGENCE button
   
   onNotconv <- function(...){
-    mod <- get("mod", envir=envirZIP)
+    mod <- get("mod", envir = envirZIP)
     mod@convergence <- FALSE
-    assign("mod", value=mod, envir=envirZIP)
+    assign("mod", value = mod, envir = envirZIP)
     tkdestroy(bayesZIPWindow)
   } # end fucntion onNotconv()
   
   
   # define help varriable(s)
   
-  assign("envirZIP", value=new.env(), envir=.GlobalEnv)
+  assign("envirZIP", value = new.env(), envir = .GlobalEnv)
   
   
   # define GUI window and frames
@@ -184,7 +182,7 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
   
   leftFrame <- tkframe(bayesZIPWindow)
   rightFrame <- tkframe(bayesZIPWindow)
-  imgFrame <- tkframe(rightFrame,height=600,width=200)
+  imgFrame <- tkframe(rightFrame,height = 600,width = 200)
   inputFrame <- tkframe(leftFrame)
   lButtonFrame <- tkframe(leftFrame)
   rButtonFrame <- tkframe(leftFrame)
@@ -193,32 +191,32 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
   
   # define input fields
   
-  prior.lambda.l <- tkentry(inputFrame, text=tclVar(prior.lambda[1]), width=6)
-  prior.lambda.lLabel <- tklabel(inputFrame, text="prior.lambda (unif)")
-  prior.lambda.r <- tkentry(inputFrame, text=tclVar(prior.lambda[2]), width=6)
+  prior.lambda.l <- tkentry(inputFrame, text = tclVar(prior.lambda[1]), width = 6)
+  prior.lambda.lLabel <- tklabel(inputFrame, text = "prior.lambda (unif)")
+  prior.lambda.r <- tkentry(inputFrame, text = tclVar(prior.lambda[2]), width = 6)
   
-  prior.pi.l <- tkentry(inputFrame, text=tclVar(prior.pi[1]), width=6)
-  prior.pi.lLabel <- tklabel(inputFrame, text="prior.pi (beta)")
-  prior.pi.r <- tkentry(inputFrame, text=tclVar(prior.pi[2]), width=6)
+  prior.pi.l <- tkentry(inputFrame, text = tclVar(prior.pi[1]), width = 6)
+  prior.pi.lLabel <- tklabel(inputFrame, text = "prior.pi (beta)")
+  prior.pi.r <- tkentry(inputFrame, text = tclVar(prior.pi[2]), width = 6)
   
-  chainsEntry <- tkentry(inputFrame, text=tclVar(chains))
-  chainsLabel <- tklabel(inputFrame, text="chains")
+  chainsEntry <- tkentry(inputFrame, text = tclVar(chains))
+  chainsLabel <- tklabel(inputFrame, text = "chains")
   
-  burnEntry <- tkentry(inputFrame, text=tclVar(burn))
-  burnLabel <- tklabel(inputFrame, text="burn")
+  burnEntry <- tkentry(inputFrame, text = tclVar(burn))
+  burnLabel <- tklabel(inputFrame, text = "burn")
   
-  updateEntry <- tkentry(inputFrame, text=tclVar(update))
-  updateLabel <- tklabel(inputFrame, text="update")
+  updateEntry <- tkentry(inputFrame, text = tclVar(update))
+  updateLabel <- tklabel(inputFrame, text = "update")
   
-  thinEntry <- tkentry(inputFrame, text=tclVar(thin))
-  thinLabel <- tklabel(inputFrame, text="thin")
+  thinEntry <- tkentry(inputFrame, text = tclVar(thin))
+  thinLabel <- tklabel(inputFrame, text = "thin")
   
   
   # define buttons
   
-  runButton <- ttkbutton(lButtonFrame, width=12, text="Run", command=onRun)
-  resetButton <- ttkbutton(lButtonFrame, width=12, text="Reset", command=onReset)
-  cancelButton <- ttkbutton(lButtonFrame, width=12, text="Cancel", command=onCancel)
+  runButton <- ttkbutton(lButtonFrame, width = 12, text = "Run", command = onRun)
+  resetButton <- ttkbutton(lButtonFrame, width = 12, text = "Reset", command = onReset)
+  cancelButton <- ttkbutton(lButtonFrame, width = 12, text="Cancel", command=onCancel)
 
   nextplotButton <- ttkbutton(rButtonFrame, width=12, text="Next Plot", command=function(...) onNextplot(envir=envirZIP, nvars=2))
   convButton <- ttkbutton(rButtonFrame, width=12, text="Converge", command=onConv)
@@ -269,9 +267,9 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
 #' 
 #' @name PEMGUI
 #' @aliases PEMGUI
-#' @title GUI for Bayesian Prevalence estimation under misclassification (PEM)
-#' @usage PEMGUI(x = 20, n = 20, k = 10, prior.pi = c(1,19), prior.se = c(1,1),
-#'  prior.sp = c(1,1), chains = 3, burn = 1000, update = 10000, thin = 1)
+#' @title GUI for Bayesian Prevalence Estimation under Misclassification (PEM)
+#' @usage PEMGUI(x = 20, n = 20, k = 10, prior.pi = c(1, 19), prior.se = c(1, 1),
+#'  prior.sp = c(1, 1), chains = 3, burn = 1000, update = 10000, thin = 1)
 #' @param x Scalar value for number of pools (\code{k>1}) or single outcomes (\code{k = 1}) with positive test result.
 #' @param n Scalar value for number of pools tested (\code{k>1}) or the sample size in application study (\code{k = 1}).
 #' @param k Scalar value for number of individual samples physically combined into one pool.
@@ -290,12 +288,11 @@ ZIPGUI <- function(data, prior.lambda=c(0, 100), prior.pi=c(1, 1),
 #' \item{\code{results}}{Data frame containing statitsics of the posterior distribution.}
 #' \item{\code{jointpost}}{Data frame giving the joint posterior probability distribution.}
 #' \item{\code{nodes}}{Names of the parameters jointly estimated by the Bayes model.}
-#' \item{\code{model}}{Model in BRugs/Winbugs syntax as a character string.}
+#' \item{\code{model}}{Model in rjags/JAGS (originally BRugs/Winbugs) syntax as a character string.}
 #' \item{\code{chains}}{Number of independent MCMC chains.}
 #' \item{\code{burn}}{Length of burn-in period.}
 #' \item{\code{update}}{Length of update iterations for estimation.}
-#' @note The convergence of the model is assessed by the user using diagnostic plots
-#' provided by the \pkg{BRugs} package.
+#' @note The convergence of the model is assessed by the user using diagnostic plots.
 #' @seealso \code{\link{rrisk.BayesPEM}}
 #' @keywords manip
 #' @export

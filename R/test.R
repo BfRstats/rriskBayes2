@@ -4,12 +4,12 @@
 
 #' @title Quick test of rrisk.BayesPEM
 #' @description The function \code{test_rrisk.BayesPEM} is a quick test of the \code{\link{rrisk.BayesPEM}} function for all cases of \code{misclass} without setting parameters. x, n and k are sampled, all other parameters are fixed. 
-#' @param misclass See \code{\link{misclass}} character with legal character entries \cr
+#' @param misclass See \code{\link{misclass}} character with legal character entries: \cr
 #' \code{individual}, \code{individual-fix-se}, \code{individual-fix-sp}, \code{individual-fix-se-sp}, \cr
 #' \code{pool}, \code{pool-fix-se}, \code{pool-fix-sp} or \code{pool-fix-se-sp}.\cr
 #' \code{fix-se}: fixed sensitivity\cr
 #' \code{fix-sp}: fixed specifity\cr
-#' \code{fix-se-sp}: fixed sensitivity and fixed specifity
+#' \code{fix-se-sp}: fixed sensitivity AND fixed specifity
 #' @return Returns an instance of the 
 #' \code{\linkS4class{bayesmodelClass}} class. 
 #' @export
