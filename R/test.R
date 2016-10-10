@@ -1,5 +1,4 @@
 #library(rriskBayes2)
-#test änderung
 # test risk.BayesPEM ------------------------------------------------------
 
 test_rrisk.BayesPEM <- function(misclass, gui=FALSE){
