@@ -33,15 +33,15 @@
 #' resp. specifity (\code{k=1} and \code{misclass="individual-fix-sp"})
 #' Both se and sp could be set to fixed values.
 #' \preformatted{model{
-#'        pi ~ dbeta(prior.pi[1], prior.pi[2])
+#'       pi ~ dbeta(prior.pi[1], prior.pi[2])
 #'
-#'        se resp. sp ~ dbeta(prior.sp[1], prior.sp[2])
+#'       se resp. sp ~ dbeta(prior.sp[1], prior.sp[2])
 #'
-#'        sp resp. se <-  fix
+#'       sp resp. se <-  fix
 #'
-#'        ap <- pi*se + (1-pi)*(1-sp)
+#'       ap <- pi*se + (1-pi)*(1-sp)
 #'
-#'        x ~ dbin(p,n)
+#'       x ~ dbin(p,n)
 #'    }}
 #' For misclassification at the pool-level (\code{k>1} and \code{misclass="pool"})
 #' \preformatted{model{
@@ -274,8 +274,8 @@ rrisk.BayesPEM <- function(x, n, k = 1,
   out@chains <- chains
   out@burn <- burn
   out@update <- update
-  out@jointpost <- (sample(jags_res))$mcmc[[1]]
-  out@results <- jags_res
+  out@jointpost <- data.frame((sample(jags_res))$mcmc[[1]])
+  out@results <- data.frame(summary(jags_res))
 
 return(out)
 } # end of function rrisk.BayesPEM
@@ -451,12 +451,12 @@ rrisk.BayesZIP <-  function(data,
     ##### output #####
     out@convergence <- checkPSRF(jags_res)
     out@nodes <- jags_res$monitor
-    out@model <- writeModelZIP()
+    out@model <- writeModelZIP(misclass)
     out@chains <- chains
     out@burn <- burn
     out@update <- update
-    out@jointpost <- (sample(jags_res))$mcmc[[1]]
-    out@results <- jags_res
+    out@jointpost <- data.frame((sample(jags_res))$mcmc[[1]])
+    out@results <- data.frame(summary(jags_res))
     
     return(out)
   } # end of function rrisk.BayesZIP()
@@ -635,13 +635,13 @@ rrisk.BayesZINB <-  function(data,
   ##### output #####
   out@convergence <- checkPSRF(jags_res)
   out@nodes <- jags_res$monitor
-  out@model <- writeModelZINB()
+  out@model <- writeModelZINB(misclass)
   out@chains <- chains
   out@burn <- burn
   out@update <- update
-  out@jointpost <- (sample(jags_res))$mcmc[[1]]
-  out@results <- jags_res
-  
+  out@jointpost <- data.frame((sample(jags_res))$mcmc[[1]])
+  out@results <- data.frame(summary(jags_res))
+
  return(out)
 } # end of function rrisk.BayesZINB()
 

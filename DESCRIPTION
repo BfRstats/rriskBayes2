@@ -18,8 +18,10 @@ Depends:
     rjags,
     runjags,
     tcltk,
-    tkrplot
-Suggests: coda    
+    tkrplot,
+    mc2d
+Suggests: coda,
+          modeest
 SystemRequirements:JAGS (https://sourceforge.net/projects/mcmc-jags/files)
 Authors@R: c(person(given="Natalia",
         family="Belgorodski",email="belgorodski@stat-up.de",role=c("aut"),comment="STAT-UP

@@ -104,15 +104,15 @@ Misclassifications at the individual level with fixed sensitivity
 resp. specifity (\code{k=1} and \code{misclass="individual-fix-sp"})
 Both se and sp could be set to fixed values.
 \preformatted{model{
-       pi ~ dbeta(prior.pi[1], prior.pi[2])
+      pi ~ dbeta(prior.pi[1], prior.pi[2])
 
-       se resp. sp ~ dbeta(prior.sp[1], prior.sp[2])
+      se resp. sp ~ dbeta(prior.sp[1], prior.sp[2])
 
-       sp resp. se <-  fix
+      sp resp. se <-  fix
 
-       ap <- pi*se + (1-pi)*(1-sp)
+      ap <- pi*se + (1-pi)*(1-sp)
 
-       x ~ dbin(p,n)
+      x ~ dbin(p,n)
    }}
 For misclassification at the pool-level (\code{k>1} and \code{misclass="pool"})
 \preformatted{model{

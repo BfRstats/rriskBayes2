@@ -4,8 +4,8 @@
 \alias{PEMGUI}
 \title{GUI for Bayesian Prevalence Estimation under Misclassification (PEM)}
 \usage{
-PEMGUI(x = 20, n = 20, k = 10, prior.pi = c(1,19), prior.se = c(1,1),
- prior.sp = c(1,1), chains = 3, burn = 1000, update = 10000, thin = 1)
+PEMGUI(x = 20, n = 20, k = 10, prior.pi = c(1, 19), prior.se = c(1, 1),
+ prior.sp = c(1, 1), chains = 3, burn = 1000, update = 10000, thin = 1)
 }
 \arguments{
 \item{x}{Scalar value for number of pools (\code{k>1}) or single outcomes (\code{k = 1}) with positive test result.}
