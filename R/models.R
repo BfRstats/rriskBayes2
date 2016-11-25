@@ -276,6 +276,7 @@ rrisk.BayesPEM <- function(x, n, k = 1,
   out@update <- update
   out@jointpost <- data.frame((sample(jags_res))$mcmc[[1]])
   out@results <- data.frame(summary(jags_res))
+  out@jagsresults <- jags_res
 
 return(out)
 } # end of function rrisk.BayesPEM
@@ -457,6 +458,7 @@ rrisk.BayesZIP <-  function(data,
     out@update <- update
     out@jointpost <- data.frame((sample(jags_res))$mcmc[[1]])
     out@results <- data.frame(summary(jags_res))
+    out@jagsresults <- jags_res
     
     return(out)
   } # end of function rrisk.BayesZIP()
@@ -641,6 +643,7 @@ rrisk.BayesZINB <-  function(data,
   out@update <- update
   out@jointpost <- data.frame((sample(jags_res))$mcmc[[1]])
   out@results <- data.frame(summary(jags_res))
+  out@jagsresults <- jags_res
 
  return(out)
 } # end of function rrisk.BayesZINB()
