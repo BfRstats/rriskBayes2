@@ -341,18 +341,21 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
     
     assign("mod", value = mod, envir = envirPEM)
     
-    vars <- mod@results$monitor
+    vars <- mod@nodes
+    message("printing vars")
+    print(vars)
+    
     nvars <- length(vars)
     assign("nvars", nvars, envir = envirPEM)
    
     #"trace", "ecdf", "histogram", "autocorr" plots
     k <- 1
     for(i in 1:nvars) {
-      assign(paste0("imgPlot", k), value = tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirPEM)
+      assign(paste0("imgPlot", k), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirPEM)
       k <- k+1
     }
     #crosscorrelation plot
-    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars, plot.type = "crosscorr"), hscale = 1.6, vscale = 1.5), envir = envirPEM)
+    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars, plot.type = "crosscorr"), hscale = 1.6, vscale = 1.5), envir = envirPEM)
     
     imgPlot1 <- get("imgPlot1", envir = envirPEM)
     tkpack(imgPlot1, side = "top")
@@ -418,7 +421,7 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
   
   assign("envirPEM",value = new.env(),envir = .GlobalEnv)
   
-  mod <- new("bayesmodelClass")
+  #mod <- new("bayesmodelClass")
   
   
   ## define GUI window and frames
