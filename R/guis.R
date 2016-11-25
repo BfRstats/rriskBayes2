@@ -91,25 +91,25 @@ ZIPGUI <- function(data, prior.lambda = c(0, 100), prior.pi = c(1, 1),
     
     mod <- try(rrisk.BayesZIP(data = data, prior.pi = c(prior.pi.l., prior.pi.r.), 
                               prior.lambda = c(prior.lambda.l., prior.lambda.r.),
-                              chains = chains., burn = burn., update = update.,thin = thin.))
+                              chains = chains., burn = burn., update = update.,thin = thin., simulation = TRUE))
     
     if(inherits(mod, "try-error")){
       tkdestroy(bayesZIPWindow) 
       stop("Any error occured during fitting bayesian ZIP model",call. = FALSE)
     }
     assign("mod", value = mod, envir = envirZIP)
-    vars <- mod@results$monitor
+    vars <- mod@nodes
     nvars <- length(vars)
     assign("nvars", nvars, envir = envirZIP)
  
     #"trace", "ecdf", "histogram", "autocorr" plots
     k <- 1
     for(i in 1:nvars) {
-      assign(paste0("imgPlot", k), value  =  tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirZIP)
+      assign(paste0("imgPlot", k), value  =  tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirZIP)
       k <- k+1
     }
     #"crosscorrelation" plot
-    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@results, vars = vars, plot.type = "crosscorr"), hscale = 1.6, vscale = 1.5), envir = envirZIP)
+    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars, plot.type = "crosscorr"), hscale = 1.6, vscale = 1.5), envir = envirZIP)
  
     imgPlot1 <- get("imgPlot1", envir = envirZIP)
     tkpack(imgPlot1, side = "top")
@@ -332,7 +332,7 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
     
     mod <- try(rrisk.BayesPEM(x = x., n = n., k = k., prior.pi = c(prior.pi.l., prior.pi.r.), 
                               prior.se = c(prior.se.l., prior.se.r.), prior.sp = c(prior.sp.l., prior.sp.r.),
-                              chains = chains., misclass = "pool",update = update., burn = burn.,thin = thin.))
+                              chains = chains., misclass = "pool",update = update., burn = burn.,thin = thin., simulation = TRUE))
     
     if(inherits(mod, "try-error")){
       tkdestroy(bayesPEMWindow)
@@ -342,9 +342,7 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
     assign("mod", value = mod, envir = envirPEM)
     
     vars <- mod@nodes
-    message("printing vars")
-    print(vars)
-    
+
     nvars <- length(vars)
     assign("nvars", nvars, envir = envirPEM)
    

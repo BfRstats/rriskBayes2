@@ -452,7 +452,7 @@ rrisk.BayesZIP <-  function(data,
     ##### output #####
     out@convergence <- checkPSRF(jags_res)
     out@nodes <- jags_res$monitor
-    out@model <- writeModelZIP(misclass)
+    out@model <- writeModelZIP()
     out@chains <- chains
     out@burn <- burn
     out@update <- update
@@ -637,7 +637,7 @@ rrisk.BayesZINB <-  function(data,
   ##### output #####
   out@convergence <- checkPSRF(jags_res)
   out@nodes <- jags_res$monitor
-  out@model <- writeModelZINB(misclass)
+  out@model <- writeModelZINB()
   out@chains <- chains
   out@burn <- burn
   out@update <- update
