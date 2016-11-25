@@ -105,11 +105,11 @@ ZIPGUI <- function(data, prior.lambda = c(0, 100), prior.pi = c(1, 1),
     #"trace", "ecdf", "histogram", "autocorr" plots
     k <- 1
     for(i in 1:nvars) {
-      assign(paste0("imgPlot", k), value  =  tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirZIP)
+      assign(paste0("imgPlot", k), value  =  tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars[k]), hscale = 1.8, vscale = 2), envir = envirZIP)
       k <- k+1
     }
     #"crosscorrelation" plot
-    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars, plot.type = "crosscorr"), hscale = 1.6, vscale = 1.5), envir = envirZIP)
+    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars, plot.type = "crosscorr"), hscale = 1.8, vscale = 2), envir = envirZIP)
  
     imgPlot1 <- get("imgPlot1", envir = envirZIP)
     tkpack(imgPlot1, side = "top")
@@ -349,15 +349,15 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
     #"trace", "ecdf", "histogram", "autocorr" plots
     k <- 1
     for(i in 1:nvars) {
-      assign(paste0("imgPlot", k), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars[k]), hscale = 1.6, vscale = 1.5), envir = envirPEM)
+      assign(paste0("imgPlot", k), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars[k]), hscale = 2, vscale = 2), envir = envirPEM)
       k <- k+1
     }
     #crosscorrelation plot
-    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars, plot.type = "crosscorr"), hscale = 1.6, vscale = 1.5), envir = envirPEM)
+    assign(paste0("imgPlot", nvars+1), value = tkrplot(imgFrame,fun = function() plot(mod@jagsresults, vars = vars, plot.type = "crosscorr"), hscale = 2, vscale = 2), envir = envirPEM)
     
     imgPlot1 <- get("imgPlot1", envir = envirPEM)
-    tkpack(imgPlot1, side = "top")
-    assign("plotNumber",value = 1,envir = envirPEM)
+    tkpack(imgPlot1, side = "top", expand=TRUE)
+    assign("plotNumber",value = 1, envir = envirPEM)
     tkraise(bayesPEMWindow)
   }
   
@@ -423,7 +423,7 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
   
   
   ## define GUI window and frames
-  
+
   bayesPEMWindow <- tktoplevel()
   tkwm.title(bayesPEMWindow, "GUI for the function rrisk.bayesPEM")
   tkwm.resizable(bayesPEMWindow, 0, 0) # fixed size
@@ -432,7 +432,7 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
   
   leftFrame <- tkframe(bayesPEMWindow)
   rightFrame <- tkframe(bayesPEMWindow)
-  imgFrame <- tkframe(rightFrame, height = 600,width = 200)
+  imgFrame <- tkframe(rightFrame, height = 600, width = 200)
   inputFrame <- tkframe(leftFrame)
   lButtonFrame <- tkframe(leftFrame)
   rButtonFrame <- tkframe(leftFrame)
@@ -484,8 +484,7 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
   nextplotButton <- ttkbutton(rButtonFrame, width = 12, text = "Next Plot", command = function(...) onNextplot(envir = envirPEM, nvars = 3))
   convButton <- ttkbutton(rButtonFrame, width = 12, text = "Converge", command = onConv)
   notconvButton <- ttkbutton(rButtonFrame, width = 12, text = "Not Converge", command = onNotconv)
-  
-  
+
   ## tkgrid() and tkpack() the inputs and frames together
   ## must be run "inside-out"
   
@@ -510,11 +509,12 @@ PEMGUI <- function(x = 20, n = 20, k = 1, prior.pi = c(1,1), prior.se = c(1,1),
   tkpack(leftFrame, side="left") 
   
   tkpack(imgFrame, side="top", padx=c(15,0), pady=c(0,10))
-  tkpack(rightFrame, side="right") # zum zweiten mal
+  tkpack(rightFrame, side="right", fill='both', expand=TRUE) # zum zweiten mal
   
   tkraise(bayesPEMWindow)
   
   tkwait.window(bayesPEMWindow) # otherwise, mod@convergence won't be saved
+
   
   if(exists("mod", where=envirPEM)){
     mod <- get("mod", envir=envirPEM) 
