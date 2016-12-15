@@ -13,7 +13,7 @@ The following Bayesian models are implemented in this package:
 
 Collection of functions for fitting Bayesian models. The functions can be used as stand-alone application or launched during an 'rrisk' session.
 
-This package is a part of the rrisk project and contains functions for fitting Bayesian models using the package JAGS. This package does not depend on the whole rrisk project and can be used separately. The rrisk project can be downloaded from the [BfR page](http://www.bfr.bund.de/cd/52158).
+This package is a part of the rrisk project and contains functions for fitting Bayesian models using the package JAGS. This package does not depend on the whole rrisk project and can be used separately. The [rrisk project](http://www.bfr.bund.de/cd/52158) has been developed at the BfR (Federal Institute for Risk Assessment) and is available at https://github.com/BfRstats/rrisk.
 
 ## Author(s)
 
@@ -21,7 +21,20 @@ This package is a part of the rrisk project and contains functions for fitting B
 * Matthias Greiner matthias.greiner@bfr.bund.de (Federal Institute for Risk Assessment, Germany)
 * Alexander Engelhardt alexander.engelhardt@stat-up.com (STAT-UP Statistical Consulting)
 * Christina Yassouridis christina.yassouridis@stat-up.com (STAT-UP Statistical Consulting)
-* ...
+
+## Installation
+
+Use the following in R: 
+
+```
+if (!require(devtools))
+{
+  install.packages("devtools")
+  library(devtools)
+}
+
+install_github("BfRstats/rriskBayes2", dependencies = TRUE)
+```
 
 ## Examples
 
